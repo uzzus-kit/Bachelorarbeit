@@ -25,7 +25,7 @@ data_source <- "icosari"
 # diseases per data source.
 #diseases <- c("sari")
 # will later likely become:
-diseases <- c("sari", "sari_covid", "sari_influenza", "sari_rsv")
+diseases <- c("sari", "sari_covid", "sari_influenza", "sari_rsv", "Rest")
 
 
 
@@ -58,7 +58,8 @@ triangles <- targets <- list()
                                     colClasses = c("date" = "Date"), check.names = FALSE)
   triangles[[diseases[4]]]= read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_rsv.csv",
                              colClasses = c("date" = "Date"), check.names = FALSE)
-  
+  triangles[[diseases[5]]]=triangles[[diseases[4]]]
+  sari_gekürzt_triangles=triangles[[diseases[4]]]
   # read in target time series:
   targets[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari.csv",#insgesamt
                                   colClasses = c("date" = "Date"), check.names = FALSE)
@@ -68,19 +69,67 @@ triangles <- targets <- list()
                               colClasses = c("date" = "Date"), check.names = FALSE)
   targets[[diseases[4]]] =read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari_rsv.csv",
                        colClasses = c("date" = "Date"), check.names = FALSE)
+  targets[[diseases[5]]]=targets[[diseases[4]]]
+  sari_gekürzt_targets=targets[[diseases[4]]]
   # this is just the current version of the data in time series format
-#}
+  for(i in 1:nrow(sari_gekürzt_triangles)){
+    match_row <- triangles[[diseases[1]]][
+      triangles[[diseases[1]]]$date == sari_gekürzt_triangles[i, 5] & 
+        triangles[[diseases[1]]]$age_group == sari_gekürzt_triangles[i, 2], 
+    ]
+    
+    if (nrow(match_row) == 1) {
+      sari_gekürzt_triangles[i, ] <- match_row
+    } else {
+      warning(paste("Kein eindeutiger Match in Zeile", i))
+    }
+  }
+#Rest berechnen
+  triangle_Gesamt=triangles[[diseases[2]]]
+  for(tag in unique(triangles[[diseases[2]]]$date)){
+    Index=which(triangles[[diseases[2]]]$date==tag)
+    for (j in which(names(triangles[[diseases[2]]])=="value_0w"):which(names(triangles[[diseases[2]]])=="value_>10w")){
+      for(i in Index)
+      {
+        triangle_Gesamt[i,j]=triangles[[diseases[2]]][i,j]+triangles[[diseases[3]]][i,j]+triangles[[diseases[4]]][i,j]
+        triangles[[diseases[5]]][i,j]=sari_gekürzt_triangles[i,j]-triangle_Gesamt[i,j]
+      }  
+    }
+  }
+  for(i in 1:nrow(sari_gekürzt_targets)){
+    match_row <- targets[[diseases[1]]][
+      targets[[diseases[1]]]$date == sari_gekürzt_targets[i, 5] & 
+        targets[[diseases[1]]]$age_group == sari_gekürzt_targets[i, 2], 
+    ]
+    
+    if (nrow(match_row) == 1) {
+      sari_gekürzt_targets[i, ] <- match_row
+    } else {
+      warning(paste("Kein eindeutiger Match in Zeile", i))
+    }
+  }
+  target_Gesamt=targets[[diseases[2]]]
+  for(tag in unique(targets[[diseases[2]]]$date)){
+    Index=which(targets[[diseases[2]]]$date==tag)
+      for(i in Index)
+      {
+        target_Gesamt[i,6]=targets[[diseases[2]]][i,6]+targets[[diseases[3]]][i,6]+targets[[diseases[4]]][i,6]
+        targets[[diseases[5]]][i,6]=sari_gekürzt_targets[i,6]-target_Gesamt[i,6]
+      }  
+  }
 #Bis hier müsste Code passen
 triangles
 targets
+SARI_liste=list()
 # run over forecast dates to generate nowcasts:
+for (j in 1:5){
 for(i in seq_along(forecast_dates)){                    #Durchläuft alle Prognosedaten der Liste forecast_dates
   forecast_date <- forecast_dates[i]                    #Speichert aktuelles Prognosedatum in forecast_date
   cat(as.character(forecast_dates[i]), "\n")            #Gibt Prognosedatum auf Console aus
   
   # run over diseases:
-  for (disease in diseases) {                           #Durchlaufe Sari, Covid, Rsv und Influenza Daten
-    
+  for (disease in diseases[[j]]) {                           #Durchlaufe Sari, Covid, Rsv und Influenza Daten
+    #assign(paste0("liste",disease),list())
     # generate nowcasts for age group 00+
     # note: pre-processing and subsetting of RT takes place inside
     # note: observed is the reporting triangle for which to generate a nowcast,
@@ -106,7 +155,6 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
     
     # keep only result element:
     nc <- nc$result                                       #Extrahiert nur die Ergebnisse aus dem Nowcasting Objekt
-    
     # generate a plot if desired:
     if(plot_all){
       # truth data as of forecast_date, subset to relevant stratum
@@ -130,12 +178,21 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
       lines(target_current$date, target_current$value, col = "red", lty  ="solid")      #aktuelle Daten
       title(paste0(disease, ", ", "00+", ", ", forecast_date))                          #Titel
     }
-    
+    r=r+1
+    SARI_liste[[r]]=cbind(nc,disease)
     # write out:
     # need to adapt path if nowcasts shall be written out.
-     #write.csv(nc, file = paste0(path_repo, "/submissions/", data_source, "/", disease, "/KIT-simple_nowcast/",
-                                # forecast_date, "-", data_source, "-", disease, "-KIT-simple_nowcast.csv"), row.names = FALSE)
+    #write.csv(nc, file = paste0("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten",
+                                 #forecast_date, "-", data_source, "-", disease, "-KIT-simple_nowcast.csv"), row.names = FALSE)
+  }
   }
 }
+write.csv(do.call(rbind,SARI_liste),"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_gesamt.csv",row.names = FALSE)
+Nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_gesamt.csv")
+Nowcast_einzel=list()
+i=1
+for (disease in diseases){
+  Nowcast_einzel[[i]]=Nowcast[which(Nowcast$disease==disease),]
+  i=i+1
+}
 
-  

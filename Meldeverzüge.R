@@ -62,8 +62,8 @@ write.csv(Covid_gesamt,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Covid_reg.csv
 write.csv(Influenza,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Influenza_reg.csv",row.names = FALSE)
 write.csv(RSV,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\RSV_reg.csv",row.names=FALSE)
 write.csv(sari_gesamt[93:119,],"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\sari_reg.csv",row.names=FALSE)
+sari_gekürzt=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\sari_reg.csv")
 #Gesamt Verzüge berechnen
-
 Gesamtverzüge=Covid_gesamt
 Woche0=which(names(Gesamtverzüge)=="value_0w")
 Woche4=which(names(Gesamtverzüge)=="value_4w")
@@ -73,6 +73,13 @@ for(i in 1:length(Gesamtverzüge[,1])){
   }
 }
 write.csv(Gesamtverzüge,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\gesamtverzüge_reg.csv",row.names = FALSE)
+Rest=Gesamtverzüge
+  #Rest werte berechnen
+for (i in 1:27){
+  for(j in Woche0:Woche4){
+    Rest[i,j]=sari_gekürzt[i,j]-Gesamtverzüge[i,j]
+  }
+}
 #Daten zum Plotten vorbereiten
 Summe_ber=function(Daten,länge){
   summe=numeric(länge)
@@ -82,9 +89,9 @@ Summe_ber=function(Daten,länge){
 summe_Covid=Summe_ber(Covid_gesamt,length(Covid_gesamt[,1]))
 summe_Influenza=Summe_ber(Influenza,length(Influenza[,1]))
 summe_RSV=Summe_ber(RSV,length(RSV[,1]))
-summe_Gesamtverzüge=Summe_ber(Gesamtverzüge,length(Gesamtverzüge))
-summe_sari=Summe_ber(sari_gesamt, length(sari_gesamt))
-
+summe_Gesamtverzüge=Summe_ber(Gesamtverzüge,length(Gesamtverzüge[,1]))
+summe_sari=Summe_ber(sari_gesamt, length(sari_gesamt[,1]))
+summe_rest=Summe_ber(Rest, length(Rest[,1]))
 Anteil=function(Daten,Summe){
   Woche0=which(names(Daten)=="value_0w")
   Woche4=which(names(Daten)=="value_4w")
@@ -105,6 +112,7 @@ Anteil_Gesamtverzüge=Anteil(Gesamtverzüge,summe_Gesamtverzüge)
 Anteil_sari=Anteil(sari_gesamt,summe_sari)
 Anteil_sari_gekürzt=matrix(0,nrow = 27,ncol=length(Influenza[1,]))
 Anteil_sari_gekürzt <- Anteil_sari[Anteil_sari$date %in% Influenza$date, ]
+Anteil_Rest=Anteil(Rest,summe_rest)
 row.names(Anteil_sari_gekürzt)=NULL
 #Daten vorverarbeitung abgeschlossen
 #Plotten
@@ -136,6 +144,7 @@ plotten=function(Anteil_x, Name){
 plotten(Anteil_Covid, "Covid")
 plotten(Anteil_Influenza, "Influenza")
 plotten(Anteil_RSV,"RSV")
+plotten(Anteil_Rest,"Rest")
 plotten(Anteil_Gesamtverzüge,"Gesamtverzüge")
 plotten(Anteil_sari_gekürzt,"sari")
 plotten=function(Anteil_x, Name){
@@ -165,51 +174,3 @@ plotten=function(Anteil_x, Name){
   scale_y_continuous(breaks = seq(0, 1, by = 0.25))
 }
 plotten(Anteil_sari,"sari")                           #Braucht neue Funktion da Skalierung auf x und y Achse angepasst werden muss da deutlich mehr Wochen an Daten gegeben
-
-plotten = function(Anteil_x1, Anteil_x2) {
-  df1 = data.frame(
-    Woche = Anteil_x1$date,
-    Wert_Woche0 = Anteil_x1$value_0w,
-    Wert_Woche1 = Anteil_x1$value_1w,
-    Wert_Woche2 = Anteil_x1$value_2w,
-    Wert_Woche3 = Anteil_x1$value_3w,
-    Wert_Woche4 = Anteil_x1$value_4w
-  ) %>%
-    pivot_longer(cols = -Woche, names_to = "Kategorie", values_to = "Wert") %>%
-    mutate(Datensatz = "Datensatz1")
-  
-  df2 = data.frame(
-    Woche = Anteil_x2$date,
-    Wert_Woche0 = Anteil_x2$value_0w,
-    Wert_Woche1 = Anteil_x2$value_1w,
-    Wert_Woche2 = Anteil_x2$value_2w,
-    Wert_Woche3 = Anteil_x2$value_3w,
-    Wert_Woche4 = Anteil_x2$value_4w
-  ) %>%
-    pivot_longer(cols = -Woche, names_to = "Kategorie", values_to = "Wert") %>%
-    mutate(Datensatz = "Datensatz2")
-  
-  df_combined = rbind(df1, df2)
-  
-  df_combined$Kategorie = factor(
-    df_combined$Kategorie,
-    levels = c("Wert_Woche4", "Wert_Woche3", "Wert_Woche2", "Wert_Woche1", "Wert_Woche0")
-  )
-  
-  ggplot(df_combined, aes(x = interaction(Woche, Datensatz), y = Wert, fill = Kategorie)) +
-    geom_bar(stat = "identity") +
-    scale_x_discrete(
-      labels = rep(unique(df_combined$Woche), each = 2)
-    ) +
-    labs(
-      title = "Meldeverzüge anteilig nach Kalenderwoche",
-      x = "Kalenderwoche",
-      y = "Anteil",
-      fill = "Kategorie"
-    ) +
-    theme_minimal() +
-    theme(
-      axis.text.x = element_text(angle = 90, hjust = 1, size = 8)
-    )
-}
-plotten(Anteil_Gesamtverzüge,Anteil_sari_gekürzt)
