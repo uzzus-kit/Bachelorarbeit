@@ -195,4 +195,87 @@ for (disease in diseases){
   Nowcast_einzel[[i]]=Nowcast[which(Nowcast$disease==disease),]
   i=i+1
 }
+Nowcast_aufbrechen=function(Nowcast_Krankheit){
+Nowcast_aufgebrochen=list()
+untere_Grenze=1
+obere_Grenze=4*8
+for(i in 1:floor(nrow(Nowcast_Krankheit)/(4*8))){
+  Nowcast_aufgebrochen[[i]]=Nowcast_Krankheit[untere_Grenze:obere_Grenze,]
+  untere_Grenze=untere_Grenze+(4*8)
+  obere_Grenze=obere_Grenze+(4*8)
+}
+return(Nowcast_aufgebrochen)
+}
+Nowcast_sari=Nowcast_aufbrechen(Nowcast_einzel[[1]])
+Nowcast_covid=Nowcast_aufbrechen(Nowcast_einzel[[2]])
+Nowcast_influenza=Nowcast_aufbrechen(Nowcast_einzel[[3]])
+Nowcast_RSV=Nowcast_aufbrechen(Nowcast_einzel[[4]])
+Nowcast_Rest=Nowcast_aufbrechen(Nowcast_einzel[[5]])
 
+plotten=function(Nowcast,Zahl){
+# Basisdaten vorbereiten
+observed_back_in_time <- data_as_of(dat_truth = triangles[[Zahl]],
+                                    date = forecast_date,
+                                    location = "DE", age_group = "00+", max_lag = max_delay)
+
+plot_data_back_in_time <- data.frame(
+  date = as.Date(observed_back_in_time$date),
+  value = rowSums(observed_back_in_time[, grepl("value_", colnames(observed_back_in_time))], na.rm = TRUE)
+)
+
+target_current <- subset(targets[[Zahl]], age_group == "00+" & location == "DE")
+
+# 1. Plot mit einem Forecast erstellen (z. B. dem aktuellsten)
+plot_forecast(forecasts = Nowcast[[length(Nowcast)]],
+              location = "DE", age_group = "00+",
+              truth = plot_data_back_in_time,
+              levels_coverage = c(0.5, 0.95),
+              start = as.Date(forecast_date) - 135,
+              end = as.Date(forecast_date) + 28,
+              forecast_date = forecast_date,
+              ylim = c(0, 1.2 * max(tail(plot_data_back_in_time$value, 20)))
+)
+
+# 2. Jetzt zusätzliche Nowcasts mit Linien hinzufügen (Medianlinien z. B.)
+farben <- rainbow(length(Nowcast))
+for (i in 1:(length(Nowcast)-1)) {
+  forecast_i <- Nowcast[[i]]
+  median_forecast <- subset(forecast_i, quantile == 0.5)
+  
+  lines(as.Date(median_forecast$target_end_date), median_forecast$value,
+        col = farben[i], lty = "dashed")
+}
+
+# Aktuelle Daten hinzufügen
+lines(target_current$date, target_current$value, col = "red", lty = "solid")
+title(paste0(disease, ", 00+, ", forecast_date))
+
+for (i in 1:(length(Nowcast_sari)-1)) {
+  forecast_i <- Nowcast[[i]]
+  
+  # 95% Intervall extrahieren
+  lower <- subset(forecast_i, quantile == 0.025)
+  upper <- subset(forecast_i, quantile == 0.975)
+  
+  # Sicherstellen, dass Daten in gleicher Reihenfolge vorliegen
+  stopifnot(all(as.Date(lower$target_end_date) == as.Date(upper$target_end_date)))
+  
+  # Polygon (Konfidenzband) zeichnen
+  polygon(
+    c(as.Date(lower$target_end_date), rev(as.Date(upper$target_end_date))),
+    c(lower$value, rev(upper$value)),
+    col = adjustcolor(farben[i], alpha.f = 0.2),
+    border = NA
+  )
+  
+  # Medianlinie hinzufügen (wie bisher)
+  median_forecast <- subset(forecast_i, quantile == 0.5)
+  lines(as.Date(median_forecast$target_end_date), median_forecast$value,
+        col = farben[i], lty = "dashed")
+}
+}
+plotten(Nowcast_sari,1)
+plotten(Nowcast_covid,2)
+plotten(Nowcast_influenza,3)
+plotten(Nowcast_RSV,4)
+plotten(Nowcast_Rest,5)

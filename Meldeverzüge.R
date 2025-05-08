@@ -62,6 +62,7 @@ write.csv(Covid_gesamt,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Covid_reg.csv
 write.csv(Influenza,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Influenza_reg.csv",row.names = FALSE)
 write.csv(RSV,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\RSV_reg.csv",row.names=FALSE)
 write.csv(sari_gesamt[93:119,],"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\sari_reg.csv",row.names=FALSE)
+write.csv(sari_gesamt,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\sari_gesamt.csv",row.names = FALSE)
 sari_gekürzt=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\sari_reg.csv")
 #Gesamt Verzüge berechnen
 Gesamtverzüge=Covid_gesamt
@@ -80,6 +81,7 @@ for (i in 1:27){
     Rest[i,j]=sari_gekürzt[i,j]-Gesamtverzüge[i,j]
   }
 }
+write.csv(Rest,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Rest_reg.csv",row.names = FALSE)
 #Daten zum Plotten vorbereiten
 Summe_ber=function(Daten,länge){
   summe=numeric(länge)
@@ -174,3 +176,4 @@ plotten=function(Anteil_x, Name){
   scale_y_continuous(breaks = seq(0, 1, by = 0.25))
 }
 plotten(Anteil_sari,"sari")                           #Braucht neue Funktion da Skalierung auf x und y Achse angepasst werden muss da deutlich mehr Wochen an Daten gegeben
+
