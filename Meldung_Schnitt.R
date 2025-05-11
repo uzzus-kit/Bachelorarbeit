@@ -53,3 +53,23 @@ total_plotten(Influenza_schnitt,"Influenza")
 total_plotten(RSV_schnitt,"RSV")
 total_plotten(sari_schnitt,"sari")
 total_plotten(rest_schnitt,"Rest")
+#Berechnung Anteil bezogen auf Grunddaten
+Anteil=function(Daten_summiert){
+  Daten_anteil=Daten_summiert
+  Daten_gesamt=sum(Daten_summiert)
+  for (i in 1:5){
+    Daten_anteil[1,i]=Daten_summiert[1,i]/Daten_gesamt
+  }
+  return(Daten_anteil)
+}
+Anteil_Covid=Anteil(Covid_summiert)
+Anteil_Influenza=Anteil(Influenza_summiert)
+Anteil_RSV=Anteil(RSV_summiert)
+Anteil_sari=Anteil(sari_summiert)
+Anteil_rest=Anteil(rest_summiert)
+total_plotten(Anteil_Covid,"Anteil Covid")
+total_plotten(Anteil_Influenza,"Anteil Influenza")
+total_plotten(Anteil_RSV,"Anteil RSV")
+total_plotten(Anteil_sari,"Anteil Sari")
+total_plotten(Anteil_rest,"Anteil Rest")
+
