@@ -15,7 +15,7 @@ Sys.setlocale("LC_TIME", "English_United States")
 path_repo <- "."
 
 # get functions:
-source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\Fremder Code\\baseline.R")
+source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\Fremder Code\\baseline_Wochenbasiert.R")
 source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\Fremder Code\\respinow_viz.R")
 
 
@@ -32,9 +32,15 @@ diseases <- c("sari", "sari_covid", "sari_influenza", "sari_rsv", "Rest")
 # dates for which to produce nowcasts:
 # for retrospective generation:
 #forecast_dates=c(as.Date("2024-10-03"),as.Date("2025-04-10"))
-forecast_dates <- seq(from = as.Date("2024-11-21"),
+#from=as.Date("2024-12-26") wenn Nowcast Prediction für 10 Wochen
+#from=as.Date("2024-11-14") wenn Nowcast Prediction für 5 Wochen
+#from=as.Date("2024-10-10") wenn Nowcast Prediction borrow_Delays=borrow_Dispersion=TRUE
+forecast_dates_5Wochen <- seq(from = as.Date("2024-11-14"),
                       to = as.Date("2025-04-10"),
                       by = 7)
+forecast_dates_10Wochen <- seq(from = as.Date("2024-12-26"),
+                              to = as.Date("2025-04-10"),
+                              by = 7)
 # or select an individual forecast_date:
 #forecast_dates <- as.Date("2024-10-10")                   #Da Meldungen immer Donnerstags sollte dieses Datum ebenfalls ein Donnerstag sein
 # set the sizes of training data sets
@@ -121,6 +127,13 @@ triangles <- targets <- list()
 triangles
 targets
 SARI_liste=list()
+if(n_history_dispersion==5){
+  forecast_dates=forecast_dates_5Wochen
+}else if(n_history_dispersion==10){
+  forecast_dates=forecast_dates_10Wochen
+}else{
+  stop("n_history_dispersion muss entweder 5 oder 10 Wochen sein, oder es muss ein entsprechen angepasster Beginn des Forecast definiert werden. \n Dieser berechnet sich zu 2024-10-10 + n_history_dispersions Wochen")
+}
 # run over forecast dates to generate nowcasts:
 for (j in 1:5){
 for(i in seq_along(forecast_dates)){                    #Durchläuft alle Prognosedaten der Liste forecast_dates
@@ -135,6 +148,7 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
     # note: observed is the reporting triangle for which to generate a nowcast,
     # observed 2 is the triangle used to estimate the delay pattern (to do this,
     # borrow_delays and borrow_dispersion need to be set to TRUE)
+    
     nc <- compute_nowcast(observed = triangles[[disease]], # this is the reporting triangle for which to compute nowcasts
                           location = "DE",              #Wir haben doch sowieso nur DE Daten?
                           age_group = "00+",            #Für meine Arbeit raus nehmen.

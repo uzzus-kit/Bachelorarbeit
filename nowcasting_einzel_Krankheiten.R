@@ -279,3 +279,4 @@ plotten(Nowcast_covid,2)
 plotten(Nowcast_influenza,3)
 plotten(Nowcast_RSV,4)
 plotten(Nowcast_Rest,5)
+
