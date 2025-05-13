@@ -202,7 +202,7 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
   }
 }
 #write.csv(do.call(rbind,SARI_liste),"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_gesamt.csv",row.names = FALSE)
-Nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_gesamt.csv")
+#Nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_gesamt.csv")
 Nowcast_einzel=list()
 i=1
 for (disease in diseases){

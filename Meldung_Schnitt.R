@@ -9,9 +9,7 @@ aufsummieren=function(Daten){
   Daten_summiert=matrix(0,nrow=1,ncol=5)
   colnames(Daten_summiert)=cbind("Woche0","Woche1","Woche2","Woche3","Woche4")
   for(j in 1:5){
-    for(i in 1:length(Daten[,2])){
-      Daten_summiert[1,j]=Daten_summiert[1,j]+Daten[i,4+j]
-    }
+      Daten_summiert[1,j]=sum(Daten[,4+j])
   }
   return(Daten_summiert)
 }
@@ -44,10 +42,16 @@ total_plotten=function(Daten_schnitt,name){
   
   # Balkendiagramm
   ggplot(df, aes(x = Verzug, y = Wert)) +
+    scale_y_continuous(labels = scales::label_comma(decimal.mark = ",", big.mark = "."))+
     geom_bar(stat = "identity", fill = "#009682") +
     labs(title = paste0("Werte nach Wochen von ",name), x = "Woche", y = "Wert") +
     theme_minimal()
 }
+total_plotten(Covid_summiert,"Summe Covid")
+total_plotten(Influenza_summiert,"Summe Influenza")
+total_plotten(RSV_summiert,"Summe RSV")
+total_plotten(sari_summiert,"Summe Sari")
+total_plotten(rest_summiert,"Summe  Rest")
 total_plotten(Covid_schnitt,"Covid")
 total_plotten(Influenza_schnitt,"Influenza")
 total_plotten(RSV_schnitt,"RSV")
@@ -72,4 +76,3 @@ total_plotten(Anteil_Influenza,"Anteil Influenza")
 total_plotten(Anteil_RSV,"Anteil RSV")
 total_plotten(Anteil_sari,"Anteil Sari")
 total_plotten(Anteil_rest,"Anteil Rest")
-
