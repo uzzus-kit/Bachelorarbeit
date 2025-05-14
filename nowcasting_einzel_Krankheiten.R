@@ -212,7 +212,7 @@ Nowcast_influenza=Nowcast_aufbrechen(Nowcast_einzel[[3]])
 Nowcast_RSV=Nowcast_aufbrechen(Nowcast_einzel[[4]])
 Nowcast_Rest=Nowcast_aufbrechen(Nowcast_einzel[[5]])
 
-plotten=function(Nowcast,Zahl){
+plotten=function(Nowcast,Zahl,disease){
 # Basisdaten vorbereiten
 observed_back_in_time <- data_as_of(dat_truth = triangles[[Zahl]],
                                     date = forecast_date,
@@ -230,8 +230,8 @@ plot_forecast(forecasts = Nowcast[[length(Nowcast)]],
               location = "DE", age_group = "00+",
               truth = plot_data_back_in_time,
               levels_coverage = c(0.5, 0.95),
-              start = as.Date(forecast_date) - 135,
-              end = as.Date(forecast_date) + 28,
+              start = as.Date(forecast_dates[1]),
+              end = as.Date(forecast_dates[length(forecast_dates)]),
               forecast_date = forecast_date,
               ylim = c(0, 1.2 * max(tail(plot_data_back_in_time$value, 20)))
 )
@@ -274,9 +274,9 @@ for (i in 1:(length(Nowcast_sari)-1)) {
         col = farben[i], lty = "dashed")
 }
 }
-plotten(Nowcast_sari,1)
-plotten(Nowcast_covid,2)
-plotten(Nowcast_influenza,3)
-plotten(Nowcast_RSV,4)
-plotten(Nowcast_Rest,5)
+plotten(Nowcast_sari,1,diseases[1])
+plotten(Nowcast_covid,2,diseases[2])
+plotten(Nowcast_influenza,3,diseases[3])
+plotten(Nowcast_RSV,4,diseases[4])
+plotten(Nowcast_Rest,5,diseases[5])
 
