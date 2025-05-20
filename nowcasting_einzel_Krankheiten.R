@@ -1,5 +1,5 @@
 # Apply the KIT-simple_nowcast baseline model to age-stratified data.
-# Author: Johannes Bracher, johannes.bracher@kit.edu
+# inspired by: Johannes Bracher, johannes.bracher@kit.edu
 
 # the paths refer to the root of the repository https://github.com/KITmetricslab/RESPINOW-Hub
 # setwd("/home/johannes/Documents/RESPINOW/RESPINOW-Hub")

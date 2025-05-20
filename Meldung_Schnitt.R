@@ -66,11 +66,29 @@ Anteil=function(Daten_summiert){
   }
   return(Daten_anteil)
 }
-Anteil_Covid=Anteil(Covid_summiert)
-Anteil_Influenza=Anteil(Influenza_summiert)
-Anteil_RSV=Anteil(RSV_summiert)
-Anteil_sari=Anteil(sari_summiert)
-Anteil_rest=Anteil(rest_summiert)
+df <- data.frame(
+  Krankheit=c("Covid","Influenza","RSV","Sari","Rest"),
+  Woche0 = c(Anteil_Covid[1,1],Anteil_Influenza[1,1],Anteil_RSV[1,1],Anteil_sari[1,1],Anteil_rest[1,1]),
+  Woche1 = c(Anteil_Covid[1,2],Anteil_Influenza[1,2],Anteil_RSV[1,2],Anteil_sari[1,2],Anteil_rest[1,2]),
+  Woche2 = c(Anteil_Covid[1,3],Anteil_Influenza[1,3],Anteil_RSV[1,3],Anteil_sari[1,3],Anteil_rest[1,3]),
+  Woche3 = c(Anteil_Covid[1,4],Anteil_Influenza[1,4],Anteil_RSV[1,4],Anteil_sari[1,4],Anteil_rest[1,4]),
+  Woche4 = c(Anteil_Covid[1,5],Anteil_Influenza[1,5],Anteil_RSV[1,5],Anteil_sari[1,5],Anteil_rest[1,5])
+)
+
+# In long format bringen
+df_long <- df %>%
+  pivot_longer(cols = starts_with("Woche"),names_to = "Woche",values_to = "Anteil"
+  )
+
+# Faktorlevel für Reihenfolge der Wochen (Woche4 oben im Stack)
+df_long$Woche <- factor(df_long$Woche, levels = paste0("Woche", 4:0))
+
+# Plotten
+ggplot(df_long, aes(x = Krankheit, y = Anteil, fill = Woche)) + 
+  geom_bar(stat = "identity", width = 0.5) + 
+  labs(title = "Gestapelter Balken für eine Krankheit nach Wochen",
+       x = NULL, y = "Anteil", fill = "Kalenderwoche") +
+  theme_minimal()
 total_plotten(Anteil_Covid,"Anteil Covid")
 total_plotten(Anteil_Influenza,"Anteil Influenza")
 total_plotten(Anteil_RSV,"Anteil RSV")

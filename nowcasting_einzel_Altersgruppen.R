@@ -1,5 +1,5 @@
 # Apply the KIT-simple_nowcast baseline model to age-stratified data.
-# Inspired by: Johannes Bracher, johannes.bracher@kit.edu
+# inspired by: Johannes Bracher, johannes.bracher@kit.edu
 
 # the paths refer to the root of the repository https://github.com/KITmetricslab/RESPINOW-Hub
 # setwd("/home/johannes/Documents/RESPINOW/RESPINOW-Hub")
@@ -15,7 +15,6 @@ Sys.setlocale("LC_TIME", "English_United States")
 path_repo <- "."
 
 # get functions:
-#für Nowcasting ohne Filter: "C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\eigener Code\\nowcasting_Wochenbasiert.R"
 source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\Fremder Code\\baseline.R")
 source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\Fremder Code\\respinow_viz.R")
 
@@ -33,18 +32,14 @@ diseases <- c("sari", "sari_covid", "sari_influenza", "sari_rsv", "Rest")
 # dates for which to produce nowcasts:
 # for retrospective generation:
 #forecast_dates=c(as.Date("2024-10-03"),as.Date("2025-04-10"))
-#from=as.Date("2024-11-14") wenn Nowcast Prediction ohne Filter
-#ab dem ("2025-01-16") funktioniert das Nowcasting mit Filter
-#from=as.Date("2024-10-10") wenn Nowcast Prediction borrow_Delays=borrow_Dispersion=TRUE
-forecast_dates <- seq(from = as.Date("2025-01-16"),
+forecast_dates <- seq(from = as.Date("2024-10-10"),
                       to = as.Date("2025-04-10"),
                       by = 7)
-length(forecast_dates)
 # or select an individual forecast_date:
 #forecast_dates <- as.Date("2024-10-10")                   #Da Meldungen immer Donnerstags sollte dieses Datum ebenfalls ein Donnerstag sein
 # set the sizes of training data sets
-n_history_dispersion <- 10
-n_history_expectations <- 10
+n_history_dispersion <- 15
+n_history_expectations <- 15
 max_delay <- 4
 max_horizon <- 3
 
@@ -55,16 +50,17 @@ class(forecast_dates)
 triangles <- targets <- list()
 #for (disease in diseases) {
   # note: we load raw reporting triangles, preprocessing takes place inside compute_nowcast
-  triangles[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari.csv",
+  triangles[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\sari_nowcast.csv",
                                   colClasses = c("date" = "Date"), check.names = FALSE)
-  triangles[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_covid19.csv",
+  triangles[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Covid_nowcast.csv",
                                    colClasses = c("date" = "Date"), check.names = FALSE)
-  triangles[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_influenza.csv",
+  triangles[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Influenza_Nowcast.csv",
                                     colClasses = c("date" = "Date"), check.names = FALSE)
-  triangles[[diseases[4]]]= read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_rsv.csv",
+  triangles[[diseases[4]]]= read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\RSV_nowcast.csv",
                              colClasses = c("date" = "Date"), check.names = FALSE)
-  triangles[[diseases[5]]]=triangles[[diseases[4]]]
-  sari_gekürzt_triangles=triangles[[diseases[4]]]
+  triangles[[diseases[5]]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Rest_nowcast.csv",
+                                    colClasses = c("date" = "Date"), check.names = FALSE)
+  sari_gekürzt_triangles=triangles[[diseases[4]]]               #Nicht relevant
   # read in target time series:
   targets[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari.csv",#insgesamt
                                   colClasses = c("date" = "Date"), check.names = FALSE)
@@ -140,17 +136,16 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
     # note: observed is the reporting triangle for which to generate a nowcast,
     # observed 2 is the triangle used to estimate the delay pattern (to do this,
     # borrow_delays and borrow_dispersion need to be set to TRUE)
-    
     nc <- compute_nowcast(observed = triangles[[disease]], # this is the reporting triangle for which to compute nowcasts
                           location = "DE",              #Wir haben doch sowieso nur DE Daten?
                           age_group = "00+",            #Für meine Arbeit raus nehmen.
                           forecast_date = forecast_date,
-                          observed2 = triangles[[disease]], # use complete sari to estimate delays
+                          observed2 = triangles$sari, # use complete sari to estimate delays
                           location2 = "DE",
                           age_group2 = "00+",
                           type = "additions",
-                          borrow_delays = FALSE,          #Verzögerungsdaten von Datensatz[1:5,] nutzen
-                          borrow_dispersion = FALSE,      #Verzögerungsverteilung von Datensatz[1:5,] nutzen
+                          borrow_delays = TRUE,          #Verzögerungsdaten von Sari nutzen
+                          borrow_dispersion = TRUE,      #Verzögerungsverteilung von Sari nutzen
                           # note using n_history_expectations_, n_history_dispersion_,
                           # which may be reduced to fit shorter triangle.
                           n_history_expectations = n_history_expectations,
@@ -172,7 +167,8 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
       target_current <- subset(targets[[disease]], age_group == "00+" & location == "DE")
       
       plot_forecast(forecasts = nc,                       #Erstellt den Plot der vergangenen Daten inklusive Nowcast
-                    location = "DE", age_group = "00+",
+                    location = "DE", 
+                    #age_group = "00+",
                     truth = plot_data_back_in_time,
                     levels_coverage = c(0.5, 0.95),       #Gibt "Schlauch" um die Daten an mit 50% und 95% Quantil
                     start = as.Date(forecast_date) - 135,      #Zeitfenster um Prognosedatum -135 Tage bis Prognosedatum bis 28 nach Prognosedatum
@@ -188,13 +184,13 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
     SARI_liste[[r]]=cbind(nc,disease)
     # write out:
     # need to adapt path if nowcasts shall be written out.
-    #write.csv(nc, file = paste0("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten_",
+    #write.csv(nc, file = paste0("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten",
                                  #forecast_date, "-", data_source, "-", disease, "-KIT-simple_nowcast.csv"), row.names = FALSE)
   }
   }
 }
-write.csv(do.call(rbind,SARI_liste),"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_gesamt_Wochenbasiert.csv",row.names = FALSE)
-Nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_gesamt_Wochenbasiert.csv")
+write.csv(do.call(rbind,SARI_liste),"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_gesamt.csv",row.names = FALSE)
+Nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_gesamt.csv")
 Nowcast_einzel=list()
 i=1
 for (disease in diseases){
@@ -280,9 +276,9 @@ for (i in 1:(length(Nowcast_sari)-1)) {
         col = farben[i], lty = "dashed")
 }
 }
-
 plotten(Nowcast_sari,1,diseases[1])
 plotten(Nowcast_covid,2,diseases[2])
 plotten(Nowcast_influenza,3,diseases[3])
 plotten(Nowcast_RSV,4,diseases[4])
 plotten(Nowcast_Rest,5,diseases[5])
+
