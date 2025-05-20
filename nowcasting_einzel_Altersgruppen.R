@@ -1,3 +1,5 @@
+#In diesem Dokument werden die Nowcasts basierend auf Sari berechnet
+
 # Apply the KIT-simple_nowcast baseline model to age-stratified data.
 # inspired by: Johannes Bracher, johannes.bracher@kit.edu
 
@@ -60,64 +62,17 @@ triangles <- targets <- list()
                              colClasses = c("date" = "Date"), check.names = FALSE)
   triangles[[diseases[5]]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Rest_nowcast.csv",
                                     colClasses = c("date" = "Date"), check.names = FALSE)
-  sari_gekürzt_triangles=triangles[[diseases[4]]]               #Nicht relevant
   # read in target time series:
-  targets[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari.csv",#insgesamt
+  targets[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Sari_target_ohne_alter.csv",#insgesamt
                                   colClasses = c("date" = "Date"), check.names = FALSE)
-  targets[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari_covid19.csv",
+  targets[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Covid_target_ohne_alter.csv",
                                  colClasses = c("date" = "Date"), check.names = FALSE)
-  targets[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari_influenza.csv",
+  targets[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Influenza_target_ohne_alter.csv",
                               colClasses = c("date" = "Date"), check.names = FALSE)
-  targets[[diseases[4]]] =read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari_rsv.csv",
+  targets[[diseases[4]]] =read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\RSV_target_ohne_alter.csv",
                        colClasses = c("date" = "Date"), check.names = FALSE)
-  targets[[diseases[5]]]=targets[[diseases[4]]]
-  sari_gekürzt_targets=targets[[diseases[4]]]
-  # this is just the current version of the data in time series format
-  for(i in 1:nrow(sari_gekürzt_triangles)){
-    match_row <- triangles[[diseases[1]]][
-      triangles[[diseases[1]]]$date == sari_gekürzt_triangles[i, 5] & 
-        triangles[[diseases[1]]]$age_group == sari_gekürzt_triangles[i, 2], 
-    ]
-    
-    if (nrow(match_row) == 1) {
-      sari_gekürzt_triangles[i, ] <- match_row
-    } else {
-      warning(paste("Kein eindeutiger Match in Zeile", i))
-    }
-  }
-#Rest berechnen
-  triangle_Gesamt=triangles[[diseases[2]]]
-  for(tag in unique(triangles[[diseases[2]]]$date)){
-    Index=which(triangles[[diseases[2]]]$date==tag)
-    for (j in which(names(triangles[[diseases[2]]])=="value_0w"):which(names(triangles[[diseases[2]]])=="value_>10w")){
-      for(i in Index)
-      {
-        triangle_Gesamt[i,j]=triangles[[diseases[2]]][i,j]+triangles[[diseases[3]]][i,j]+triangles[[diseases[4]]][i,j]
-        triangles[[diseases[5]]][i,j]=sari_gekürzt_triangles[i,j]-triangle_Gesamt[i,j]
-      }  
-    }
-  }
-  for(i in 1:nrow(sari_gekürzt_targets)){
-    match_row <- targets[[diseases[1]]][
-      targets[[diseases[1]]]$date == sari_gekürzt_targets[i, 5] & 
-        targets[[diseases[1]]]$age_group == sari_gekürzt_targets[i, 2], 
-    ]
-    
-    if (nrow(match_row) == 1) {
-      sari_gekürzt_targets[i, ] <- match_row
-    } else {
-      warning(paste("Kein eindeutiger Match in Zeile", i))
-    }
-  }
-  target_Gesamt=targets[[diseases[2]]]
-  for(tag in unique(targets[[diseases[2]]]$date)){
-    Index=which(targets[[diseases[2]]]$date==tag)
-      for(i in Index)
-      {
-        target_Gesamt[i,6]=targets[[diseases[2]]][i,6]+targets[[diseases[3]]][i,6]+targets[[diseases[4]]][i,6]
-        targets[[diseases[5]]][i,6]=sari_gekürzt_targets[i,6]-target_Gesamt[i,6]
-      }  
-  }
+  targets[[diseases[5]]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Rest_target_ohne_alter.csv",
+                                  colClasses = c("date" = "Date"), check.names = FALSE)
 #Bis hier müsste Code passen
 triangles
 targets
@@ -168,7 +123,7 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
       
       plot_forecast(forecasts = nc,                       #Erstellt den Plot der vergangenen Daten inklusive Nowcast
                     location = "DE", 
-                    #age_group = "00+",
+                    age_group = "00+",
                     truth = plot_data_back_in_time,
                     levels_coverage = c(0.5, 0.95),       #Gibt "Schlauch" um die Daten an mit 50% und 95% Quantil
                     start = as.Date(forecast_date) - 135,      #Zeitfenster um Prognosedatum -135 Tage bis Prognosedatum bis 28 nach Prognosedatum

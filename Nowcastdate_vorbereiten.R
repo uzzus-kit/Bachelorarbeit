@@ -25,10 +25,6 @@ for(i in 1:(length(Covid[,1])/3)){
     Covid_gesamt[i,j]=Covid[i,j]+Covid[i+27,j]+Covid[i+(2*27),j]
   }
 }
-Covid_gesamt=Covid_gesamt[,c(1,3:which(names(sari)=="value_.10w"))]
-Influenza=Influenza[,c(1,3:which(names(sari)=="value_.10w"))]
-RSV=RSV[,c(1,3:which(names(sari)=="value_.10w"))]
-sari_gesamt=sari_gesamt[,c(1,3:which(names(sari)=="value_.10w"))]
 #Gesamt Verzüge berechnen
 Gesamtverzüge=Covid_gesamt
 Woche0=which(names(Gesamtverzüge)=="value_0w")
@@ -83,3 +79,4 @@ write.csv(sari_target_gesamt,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Sari_ta
 write.csv(Covid_target_gesamt,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Covid_target_ohne_alter.csv",row.names = FALSE)
 write.csv(Influenza_target_gesamt,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Influenza_target_ohne_alter.csv",row.names = FALSE)
 write.csv(RSV_target_gesamt,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\RSV_target_ohne_alter.csv",row.names = FALSE)
+

@@ -1,3 +1,5 @@
+#In diesem Programm werden die Nowcasts based auf den einzelnen Erkrankungen berechnet.
+
 # Apply the KIT-simple_nowcast baseline model to age-stratified data.
 # Inspired by: Johannes Bracher, johannes.bracher@kit.edu
 
@@ -55,73 +57,27 @@ class(forecast_dates)
 triangles <- targets <- list()
 #for (disease in diseases) {
   # note: we load raw reporting triangles, preprocessing takes place inside compute_nowcast
-  triangles[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari.csv",
-                                  colClasses = c("date" = "Date"), check.names = FALSE)
-  triangles[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_covid19.csv",
-                                   colClasses = c("date" = "Date"), check.names = FALSE)
-  triangles[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_influenza.csv",
+triangles[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\sari_nowcast.csv",
+                                     colClasses = c("date" = "Date"), check.names = FALSE)
+triangles[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Covid_nowcast.csv",
+                                     colClasses = c("date" = "Date"), check.names = FALSE)
+triangles[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Influenza_Nowcast.csv",
                                     colClasses = c("date" = "Date"), check.names = FALSE)
-  triangles[[diseases[4]]]= read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_rsv.csv",
-                             colClasses = c("date" = "Date"), check.names = FALSE)
-  triangles[[diseases[5]]]=triangles[[diseases[4]]]
-  sari_gekürzt_triangles=triangles[[diseases[4]]]
-  # read in target time series:
-  targets[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari.csv",#insgesamt
+triangles[[diseases[4]]]= read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\RSV_nowcast.csv",
+                                   colClasses = c("date" = "Date"), check.names = FALSE)
+triangles[[diseases[5]]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Rest_nowcast.csv",
                                   colClasses = c("date" = "Date"), check.names = FALSE)
-  targets[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari_covid19.csv",
+# read in target time series:
+targets[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Sari_target_ohne_alter.csv",#insgesamt
+                                   colClasses = c("date" = "Date"), check.names = FALSE)
+targets[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Covid_target_ohne_alter.csv",
+                                   colClasses = c("date" = "Date"), check.names = FALSE)
+targets[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Influenza_target_ohne_alter.csv",
+                                  colClasses = c("date" = "Date"), check.names = FALSE)
+targets[[diseases[4]]] =read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\RSV_target_ohne_alter.csv",
                                  colClasses = c("date" = "Date"), check.names = FALSE)
-  targets[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari_influenza.csv",
-                              colClasses = c("date" = "Date"), check.names = FALSE)
-  targets[[diseases[4]]] =read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari_rsv.csv",
-                       colClasses = c("date" = "Date"), check.names = FALSE)
-  targets[[diseases[5]]]=targets[[diseases[4]]]
-  sari_gekürzt_targets=targets[[diseases[4]]]
-  # this is just the current version of the data in time series format
-  for(i in 1:nrow(sari_gekürzt_triangles)){
-    match_row <- triangles[[diseases[1]]][
-      triangles[[diseases[1]]]$date == sari_gekürzt_triangles[i, 5] & 
-        triangles[[diseases[1]]]$age_group == sari_gekürzt_triangles[i, 2], 
-    ]
-    
-    if (nrow(match_row) == 1) {
-      sari_gekürzt_triangles[i, ] <- match_row
-    } else {
-      warning(paste("Kein eindeutiger Match in Zeile", i))
-    }
-  }
-#Rest berechnen
-  triangle_Gesamt=triangles[[diseases[2]]]
-  for(tag in unique(triangles[[diseases[2]]]$date)){
-    Index=which(triangles[[diseases[2]]]$date==tag)
-    for (j in which(names(triangles[[diseases[2]]])=="value_0w"):which(names(triangles[[diseases[2]]])=="value_>10w")){
-      for(i in Index)
-      {
-        triangle_Gesamt[i,j]=triangles[[diseases[2]]][i,j]+triangles[[diseases[3]]][i,j]+triangles[[diseases[4]]][i,j]
-        triangles[[diseases[5]]][i,j]=sari_gekürzt_triangles[i,j]-triangle_Gesamt[i,j]
-      }  
-    }
-  }
-  for(i in 1:nrow(sari_gekürzt_targets)){
-    match_row <- targets[[diseases[1]]][
-      targets[[diseases[1]]]$date == sari_gekürzt_targets[i, 5] & 
-        targets[[diseases[1]]]$age_group == sari_gekürzt_targets[i, 2], 
-    ]
-    
-    if (nrow(match_row) == 1) {
-      sari_gekürzt_targets[i, ] <- match_row
-    } else {
-      warning(paste("Kein eindeutiger Match in Zeile", i))
-    }
-  }
-  target_Gesamt=targets[[diseases[2]]]
-  for(tag in unique(targets[[diseases[2]]]$date)){
-    Index=which(targets[[diseases[2]]]$date==tag)
-      for(i in Index)
-      {
-        target_Gesamt[i,6]=targets[[diseases[2]]][i,6]+targets[[diseases[3]]][i,6]+targets[[diseases[4]]][i,6]
-        targets[[diseases[5]]][i,6]=sari_gekürzt_targets[i,6]-target_Gesamt[i,6]
-      }  
-  }
+targets[[diseases[5]]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Rest_target_ohne_alter.csv",
+                                colClasses = c("date" = "Date"), check.names = FALSE)
 #Bis hier müsste Code passen
 triangles
 targets
