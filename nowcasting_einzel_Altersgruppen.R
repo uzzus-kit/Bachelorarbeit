@@ -133,7 +133,7 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
       )
       # add the most recent data:
       lines(target_current$date, target_current$value, col = "red", lty  ="solid")      #aktuelle Daten
-      title(paste0(disease, ", ", "00+", ", ", forecast_date))                          #Titel
+      title(paste0(disease, ", ", forecast_date))                          #Titel
     }
     r=r+1
     SARI_liste[[r]]=cbind(nc,disease)

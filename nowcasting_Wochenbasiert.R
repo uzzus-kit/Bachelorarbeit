@@ -28,7 +28,7 @@ data_source <- "icosari"
 # diseases per data source.
 #diseases <- c("sari")
 # will later likely become:
-diseases <- c("sari", "sari_covid", "sari_influenza", "sari_rsv", "Rest")
+diseases <- c("sari", "sari_covid", "sari_influenza", "sari_rsv","Rest")
 
 
 
@@ -38,10 +38,6 @@ diseases <- c("sari", "sari_covid", "sari_influenza", "sari_rsv", "Rest")
 #from=as.Date("2024-11-14") wenn Nowcast Prediction ohne Filter
 #ab dem ("2025-01-16") funktioniert das Nowcasting mit Filter
 #from=as.Date("2024-10-10") wenn Nowcast Prediction borrow_Delays=borrow_Dispersion=TRUE
-forecast_dates <- seq(from = as.Date("2025-01-16"),
-                      to = as.Date("2025-04-10"),
-                      by = 7)
-length(forecast_dates)
 # or select an individual forecast_date:
 #forecast_dates <- as.Date("2024-10-10")                   #Da Meldungen immer Donnerstags sollte dieses Datum ebenfalls ein Donnerstag sein
 # set the sizes of training data sets
@@ -49,7 +45,15 @@ n_history_dispersion <- 10
 n_history_expectations <- 10
 max_delay <- 4
 max_horizon <- 3
-
+if(n_history_dispersion==5){
+  forecast_dates=seq(from = as.Date("2024-11-21"),
+                                       to = as.Date("2025-04-10"),
+                                       by = 7)
+}else if(n_history_dispersion==10){
+  forecast_dates <- seq(from = as.Date("2024-12-26"),
+                        to = as.Date("2025-04-10"),
+                        by = 7)
+}
 # specify if plots are to be generated for each nowcast:
 plot_all <- TRUE
 class(forecast_dates)
@@ -96,7 +100,9 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
     # note: observed is the reporting triangle for which to generate a nowcast,
     # observed 2 is the triangle used to estimate the delay pattern (to do this,
     # borrow_delays and borrow_dispersion need to be set to TRUE)
-    
+    if(disease=="sari_rsv"&forecast_date<=as.Date("2025-01-16")){               #RSV erst berechenbar ab dem 2025-01-16
+      next
+    }
     nc <- compute_nowcast(observed = triangles[[disease]], # this is the reporting triangle for which to compute nowcasts
                           location = "DE",              #Wir haben doch sowieso nur DE Daten?
                           age_group = "00+",            #Für meine Arbeit raus nehmen.
@@ -131,14 +137,14 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
                     location = "DE", age_group = "00+",
                     truth = plot_data_back_in_time,
                     levels_coverage = c(0.5, 0.95),       #Gibt "Schlauch" um die Daten an mit 50% und 95% Quantil
-                    start = as.Date(forecast_date) - 135,      #Zeitfenster um Prognosedatum -135 Tage bis Prognosedatum bis 28 nach Prognosedatum
+                    start = as.Date(forecast_date) - ,      #Zeitfenster um Prognosedatum -135 Tage bis Prognosedatum bis 28 nach Prognosedatum
                     end = as.Date(forecast_date) + 28,
                     forecast_date = forecast_date,
                     ylim = c(0, 1.2*max(tail(plot_data_back_in_time$value, 20)))        #Passt y-Achse an jüngste Datenwerte an
       )
       # add the most recent data:
       lines(target_current$date, target_current$value, col = "red", lty  ="solid")      #aktuelle Daten
-      title(paste0(disease, ", ", "00+", ", ", forecast_date))                          #Titel
+      title(paste0(disease, ", ", forecast_date))                          #Titel
     }
     r=r+1
     SARI_liste[[r]]=cbind(nc,disease)
@@ -147,6 +153,7 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
     #write.csv(nc, file = paste0("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten_",
                                  #forecast_date, "-", data_source, "-", disease, "-KIT-simple_nowcast.csv"), row.names = FALSE)
   }
+  browser()
   }
 }
 write.csv(do.call(rbind,SARI_liste),"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_gesamt_Wochenbasiert.csv",row.names = FALSE)
@@ -192,7 +199,7 @@ plot_forecast(forecasts = Nowcast[[length(Nowcast)]],
               location = "DE", age_group = "00+",
               truth = plot_data_back_in_time,
               levels_coverage = c(0.5, 0.95),
-              start = as.Date(forecast_dates[1]),
+              start = (as.Date(forecast_dates[1])-35),
               end = as.Date(forecast_dates[length(forecast_dates)]),
               forecast_date = forecast_date,
               ylim = c(0, 1.2 * max(tail(plot_data_back_in_time$value, 20)))
@@ -242,3 +249,4 @@ plotten(Nowcast_covid,2,diseases[2])
 plotten(Nowcast_influenza,3,diseases[3])
 plotten(Nowcast_RSV,4,diseases[4])
 plotten(Nowcast_Rest,5,diseases[5])
+
