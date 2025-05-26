@@ -124,50 +124,54 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
     # need to adapt path if nowcasts shall be written out.
     #write.csv(nc, file = paste0("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten",
                                  #forecast_date, "-", data_source, "-", disease, "-KIT-simple_nowcast.csv"), row.names = FALSE)
-  }
+    #browser()
+    }
   }
 
-write.csv(do.call(rbind,SARI_liste),"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_künstlichesProb.csv",row.names = FALSE)
-Nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_gesamt.csv")
+write.csv(do.call(rbind,SARI_liste),"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_künstlichesProb_TRUE.csv",row.names = FALSE)
+Nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_künstlichesProb_TRUE.csv")
 Nowcast_einzel=list()
 i=1
-for (disease in diseases){
-  Nowcast_einzel[[i]]=Nowcast[which(Nowcast$disease==disease),]
+for (age in ages){
+  Nowcast_einzel[[i]]=Nowcast[which(Nowcast$age_group==age),]
   i=i+1
 }
-Nowcast_aufbrechen=function(Nowcast_Krankheit){
+Nowcast_aufbrechen=function(Nowcast_alter){
 Nowcast_aufgebrochen=list()
 untere_Grenze=1
 obere_Grenze=4*8
-for(i in 1:floor(nrow(Nowcast_Krankheit)/(4*8))){
-  Nowcast_aufgebrochen[[i]]=Nowcast_Krankheit[untere_Grenze:obere_Grenze,]
+for(i in 1:floor(nrow(Nowcast_alter)/(4*8))){
+  Nowcast_aufgebrochen[[i]]=Nowcast_alter[untere_Grenze:obere_Grenze,]
   untere_Grenze=untere_Grenze+(4*8)
   obere_Grenze=obere_Grenze+(4*8)
 }
 return(Nowcast_aufgebrochen)
 }
-Nowcast_sari=Nowcast_aufbrechen(Nowcast_einzel[[1]])
-Nowcast_covid=Nowcast_aufbrechen(Nowcast_einzel[[2]])
-Nowcast_influenza=Nowcast_aufbrechen(Nowcast_einzel[[3]])
-Nowcast_RSV=Nowcast_aufbrechen(Nowcast_einzel[[4]])
-Nowcast_Rest=Nowcast_aufbrechen(Nowcast_einzel[[5]])
+ages
+Nowcast_00=Nowcast_aufbrechen(Nowcast_einzel[[1]])
+Nowcast_04=Nowcast_aufbrechen(Nowcast_einzel[[2]])
+Nowcast_14=Nowcast_aufbrechen(Nowcast_einzel[[3]])
+Nowcast_34=Nowcast_aufbrechen(Nowcast_einzel[[4]])
+Nowcast_59=Nowcast_aufbrechen(Nowcast_einzel[[5]])
+Nowcast_79=Nowcast_aufbrechen(Nowcast_einzel[[6]])
+Nowcast_ab80=Nowcast_aufbrechen(Nowcast_einzel[[7]])
 
-plotten=function(Nowcast,Zahl,disease){
+plotten=function(Nowcast,age){
 # Basisdaten vorbereiten
-observed_back_in_time <- data_as_of(dat_truth = triangles[[Zahl]],
+observed_back_in_time <- data_as_of(dat_truth = triangles[[1]],
                                     date = forecast_date,
-                                    location = "DE", age_group = "00+", max_lag = max_delay)
+                                    location = "DE", age_group = age, max_lag = max_delay)
 
 plot_data_back_in_time <- data.frame(
   date = as.Date(observed_back_in_time$date),
   value = rowSums(observed_back_in_time[, grepl("value_", colnames(observed_back_in_time))], na.rm = TRUE)
 )
 
-target_current <- subset(targets[[Zahl]], age_group == "00+" & location == "DE")
+target_current <- subset(targets[[1]], age_group == age & location == "DE")
 
 # 1. Plot mit einem Forecast erstellen (z. B. dem aktuellsten)
 plot_forecast(forecasts = Nowcast[[length(Nowcast)]],
-              location = "DE", age_group = "00+",
+              location = "DE", age_group = age,
               truth = plot_data_back_in_time,
               levels_coverage = c(0.5, 0.95),
               start = as.Date(forecast_dates[1]),
@@ -188,9 +192,9 @@ for (i in 1:(length(Nowcast)-1)) {
 
 # Aktuelle Daten hinzufügen
 lines(target_current$date, target_current$value, col = "red", lty = "solid")
-title(paste0(disease, ", 00+, ", forecast_date))
+title(paste0(disease, age , forecast_date))
 
-for (i in 1:(length(Nowcast_sari)-1)) {
+for (i in 1:(length(Nowcast)-1)) {
   forecast_i <- Nowcast[[i]]
   
   # 95% Intervall extrahieren
@@ -214,9 +218,10 @@ for (i in 1:(length(Nowcast_sari)-1)) {
         col = farben[i], lty = "dashed")
 }
 }
-plotten(Nowcast_sari,1,diseases[1])
-plotten(Nowcast_covid,2,diseases[2])
-plotten(Nowcast_influenza,3,diseases[3])
-plotten(Nowcast_RSV,4,diseases[4])
-plotten(Nowcast_Rest,5,diseases[5])
-
+plotten(Nowcast_00,ages[1])
+plotten(Nowcast_04,ages[2])
+plotten(Nowcast_14,ages[3])
+plotten(Nowcast_34,ages[4])
+plotten(Nowcast_59,ages[5])
+plotten(Nowcast_79,ages[6])
+plotten(Nowcast_ab80,ages[7])
