@@ -192,7 +192,7 @@ for (i in 1:(length(Nowcast)-1)) {
 
 # Aktuelle Daten hinzufügen
 lines(target_current$date, target_current$value, col = "red", lty = "solid")
-title(paste0(disease, age , forecast_date))
+title(age)
 
 for (i in 1:(length(Nowcast)-1)) {
   forecast_i <- Nowcast[[i]]
@@ -225,3 +225,4 @@ plotten(Nowcast_34,ages[4])
 plotten(Nowcast_59,ages[5])
 plotten(Nowcast_79,ages[6])
 plotten(Nowcast_ab80,ages[7])
+

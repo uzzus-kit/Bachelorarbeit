@@ -217,7 +217,7 @@ for (i in 1:(length(Nowcast)-1)) {
 
 # Aktuelle Daten hinzufügen
 lines(target_current$date, target_current$value, col = "red", lty = "solid")
-title(paste0(disease, ", 00+, ", forecast_date))
+title(disease)
 
 for (i in 1:(length(Nowcast_sari)-1)) {
   forecast_i <- Nowcast[[i]]

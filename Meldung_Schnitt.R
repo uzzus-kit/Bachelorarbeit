@@ -66,6 +66,11 @@ Anteil=function(Daten_summiert){
   }
   return(Daten_anteil)
 }
+Anteil_Covid=Anteil(Covid_summiert)
+Anteil_Influenza=Anteil(Influenza_summiert)
+Anteil_RSV=Anteil(RSV_summiert)
+Anteil_sari=Anteil(sari_summiert)
+Anteil_rest=Anteil(rest_summiert)
 df <- data.frame(
   Krankheit=c("Covid","Influenza","RSV","Sari","Rest"),
   Woche0 = c(Anteil_Covid[1,1],Anteil_Influenza[1,1],Anteil_RSV[1,1],Anteil_sari[1,1],Anteil_rest[1,1]),
@@ -94,3 +99,4 @@ total_plotten(Anteil_Influenza,"Anteil Influenza")
 total_plotten(Anteil_RSV,"Anteil RSV")
 total_plotten(Anteil_sari,"Anteil Sari")
 total_plotten(Anteil_rest,"Anteil Rest")
+
