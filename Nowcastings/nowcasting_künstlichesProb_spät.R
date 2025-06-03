@@ -37,8 +37,8 @@ diseases <- c("sari")
 # or select an individual forecast_date:
 #forecast_dates <- as.Date("2024-10-10")                   #Da Meldungen immer Donnerstags sollte dieses Datum ebenfalls ein Donnerstag sein
 # set the sizes of training data sets
-n_history_dispersion <- 5
-n_history_expectations <- 5
+n_history_dispersion <- 10
+n_history_expectations <- 10
 max_delay <- 4
 max_horizon <- 3
 forecast_dates <- seq(from = as.Date("2024-10-10")+(n_history_dispersion+1)*7,                     #Muss geändert werden
@@ -180,7 +180,7 @@ plotten=function(Nowcast,age){
                 location = "DE", age_group = age,
                 truth = plot_data_back_in_time,
                 levels_coverage = c(0.5, 0.95),
-                start = as.Date(forecast_dates[1]),
+                start = as.Date(forecast_dates[1])-14,
                 end = as.Date(forecast_dates[length(forecast_dates)]),
                 forecast_date = forecast_date,
                 ylim = c(0, 1.2 * max(tail(plot_data_back_in_time$value, 20)))

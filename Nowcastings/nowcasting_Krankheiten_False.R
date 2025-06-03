@@ -41,8 +41,8 @@ diseases <- c("sari", "sari_covid", "sari_influenza", "sari_rsv","Rest")
 # or select an individual forecast_date:
 #forecast_dates <- as.Date("2024-10-10")                   #Da Meldungen immer Donnerstags sollte dieses Datum ebenfalls ein Donnerstag sein
 # set the sizes of training data sets
-n_history_dispersion <- 10
-n_history_expectations <- 10
+n_history_dispersion <- 5
+n_history_expectations <- 5
 max_delay <- 4
 max_horizon <- 3
 if(n_history_dispersion==5){
@@ -61,26 +61,26 @@ class(forecast_dates)
 triangles <- targets <- list()
 #for (disease in diseases) {
   # note: we load raw reporting triangles, preprocessing takes place inside compute_nowcast
-triangles[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\sari_nowcast.csv",
+triangles[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari.csv",
                                      colClasses = c("date" = "Date"), check.names = FALSE)
-triangles[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Covid_nowcast.csv",
+triangles[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_covid19.csv",
                                      colClasses = c("date" = "Date"), check.names = FALSE)
-triangles[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Influenza_Nowcast.csv",
+triangles[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_influenza.csv",
                                     colClasses = c("date" = "Date"), check.names = FALSE)
-triangles[[diseases[4]]]= read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\RSV_nowcast.csv",
+triangles[[diseases[4]]]= read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_rsv.csv",
                                    colClasses = c("date" = "Date"), check.names = FALSE)
-triangles[[diseases[5]]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Rest_nowcast.csv",
+triangles[[diseases[5]]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-Rest.csv",
                                   colClasses = c("date" = "Date"), check.names = FALSE)
 # read in target time series:
-targets[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Sari_target_ohne_alter.csv",#insgesamt
+targets[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari.csv",#insgesamt
                                    colClasses = c("date" = "Date"), check.names = FALSE)
-targets[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Covid_target_ohne_alter.csv",
+targets[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari_covid19.csv",
                                    colClasses = c("date" = "Date"), check.names = FALSE)
-targets[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Influenza_target_ohne_alter.csv",
+targets[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari_influenza.csv",
                                   colClasses = c("date" = "Date"), check.names = FALSE)
-targets[[diseases[4]]] =read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\RSV_target_ohne_alter.csv",
+targets[[diseases[4]]] =read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari_rsv.csv",
                                  colClasses = c("date" = "Date"), check.names = FALSE)
-targets[[diseases[5]]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Rest_target_ohne_alter.csv",
+targets[[diseases[5]]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-rest.csv",
                                 colClasses = c("date" = "Date"), check.names = FALSE)
 #Bis hier müsste Code passen
 triangles
@@ -154,6 +154,7 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
     #write.csv(nc, file = paste0("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten_",
                                  #forecast_date, "-", data_source, "-", disease, "-KIT-simple_nowcast.csv"), row.names = FALSE)
   }
+  #browser()
   }
 }
 write.csv(do.call(rbind,SARI_liste),"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_gesamt_Wochenbasiert.csv",row.names = FALSE)

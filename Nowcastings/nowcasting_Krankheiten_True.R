@@ -52,27 +52,27 @@ class(forecast_dates)
 triangles <- targets <- list()
 #for (disease in diseases) {
   # note: we load raw reporting triangles, preprocessing takes place inside compute_nowcast
-  triangles[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\sari_nowcast.csv",
-                                  colClasses = c("date" = "Date"), check.names = FALSE)
-  triangles[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Covid_nowcast.csv",
+triangles[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari.csv",
+                                     colClasses = c("date" = "Date"), check.names = FALSE)
+triangles[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_covid19.csv",
+                                     colClasses = c("date" = "Date"), check.names = FALSE)
+triangles[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_influenza.csv",
+                                    colClasses = c("date" = "Date"), check.names = FALSE)
+triangles[[diseases[4]]]= read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_rsv.csv",
                                    colClasses = c("date" = "Date"), check.names = FALSE)
-  triangles[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Influenza_Nowcast.csv",
-                                    colClasses = c("date" = "Date"), check.names = FALSE)
-  triangles[[diseases[4]]]= read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\RSV_nowcast.csv",
-                             colClasses = c("date" = "Date"), check.names = FALSE)
-  triangles[[diseases[5]]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Rest_nowcast.csv",
-                                    colClasses = c("date" = "Date"), check.names = FALSE)
-  # read in target time series:
-  targets[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Sari_target_ohne_alter.csv",#insgesamt
+triangles[[diseases[5]]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-Rest.csv",
                                   colClasses = c("date" = "Date"), check.names = FALSE)
-  targets[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Covid_target_ohne_alter.csv",
+# read in target time series:
+targets[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari.csv",#insgesamt
+                                   colClasses = c("date" = "Date"), check.names = FALSE)
+targets[[diseases[2]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari_covid19.csv",
+                                   colClasses = c("date" = "Date"), check.names = FALSE)
+targets[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari_influenza.csv",
+                                  colClasses = c("date" = "Date"), check.names = FALSE)
+targets[[diseases[4]]] =read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-sari_rsv.csv",
                                  colClasses = c("date" = "Date"), check.names = FALSE)
-  targets[[diseases[3]]] = read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Influenza_target_ohne_alter.csv",
-                              colClasses = c("date" = "Date"), check.names = FALSE)
-  targets[[diseases[4]]] =read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\RSV_target_ohne_alter.csv",
-                       colClasses = c("date" = "Date"), check.names = FALSE)
-  targets[[diseases[5]]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Rest_target_ohne_alter.csv",
-                                  colClasses = c("date" = "Date"), check.names = FALSE)
+targets[[diseases[5]]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-rest.csv",
+                                colClasses = c("date" = "Date"), check.names = FALSE)
 #Bis hier müsste Code passen
 triangles
 targets
