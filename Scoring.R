@@ -1,6 +1,6 @@
 library(dplyr)
 source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\eigener Code\\WIS.R")
-source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\eigener Code\\Nowcastings\\nowcasting_Krankheiten_False.R")   #Alternativ kann man auch die Nowcasts laden
+source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\eigener Code\\Nowcastings\\nowcasting_Krankheiten_True_Durchschnitt.R")   #Alternativ kann man auch die Nowcasts laden
 source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\eigener Code\\truth_berechnen.R")
 #Nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_RSV.csv")
 WIS=function(Nowcast,triangle){
@@ -22,6 +22,6 @@ for (i in 1:length(Nowcast_einzel)){
 x=print(as.data.frame(WIS(Nowcast_einzel[[i]],triangles[[i]])),digits = 10)
 score_schnitt[i]=x$score
 }
-mean(score_schnitt[2:5])
+mean(score_schnitt[1:5])
 median(score_schnitt)
 diseases

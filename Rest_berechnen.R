@@ -30,3 +30,20 @@ for(i in 1:length(Rest_target[,1])){
 }
 write.csv(Rest_target,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-rest.csv",row.names = FALSE)
 
+#Überlegung: Durschnittswert über alle als Observed 2 nehmen
+Durchschnitt=sari_gekürzt
+for (i in 1:length(Durchschnitt[,1])){
+  for (j in which(colnames(Rest)=="value_0w"):which(colnames(Rest)=="value_.10w")){
+    Durchschnitt[i,j]=sari_gekürzt[i,j]+Covid[i,j]+Influenza[i,j]+RSV[i,j]/4
+  }
+}
+Durchschnitt=rbind(sari[1:92,],Durchschnitt)
+write.csv(Durchschnitt,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-Durchschnitt.csv",row.names = FALSE)
+Durchschnitt_target=sari_gekürzt_target
+value=which(colnames(Durchschnitt_target)=="value")
+for(i in 1:length(Durchschnitt_target[,1])){
+  Durchschnitt_target[i,value]=sari_gekürzt_target[i,value]+RSV_target[i,value]+Influenza_target[i,value]+Covid_target[i,value]/4
+}
+Durchschnitt_target=rbind(sari_target[1:92,],Durchschnitt_target)
+write.csv(Durchschnitt_target,"C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target-icosari-Durchschnitt.csv",row.names = FALSE)
+
