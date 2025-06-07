@@ -1,10 +1,10 @@
 library(dplyr)
 source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\eigener Code\\WIS.R")
-source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\eigener Code\\Nowcastings\\nowcasting_künstlichesProb_FALSE.R")   #Alternativ kann man auch die Nowcasts laden
+source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\eigener Code\\Nowcastings\\nowcasting_künstlichesProb_spät_True.R")   #Alternativ kann man auch die Nowcasts laden
 source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\eigener Code\\truth\\truth_berechnen_Altersstratifiziert.R")
 #Nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcast_RSV.csv")
 WIS=function(Nowcast,triangle){
-    Evaluations_Nowcast=Nowcast[match(as.Date("2023-10-26")+12*7,Nowcast$forecast_date):length(Nowcast[,1]),]      #begrenzt die Nowcasts auf den Zeitraum ab dem mit History von 10 Wochen der erste Nowcast möglich ist
+    Evaluations_Nowcast=Nowcast[match(as.Date("2024-12-26"),Nowcast$forecast_date):length(Nowcast[,1]),]      #begrenzt die Nowcasts auf den Zeitraum ab dem mit History von 10 Wochen der erste Nowcast möglich ist
     Nowcast_truth=as.data.frame(truth(triangle))
 Nowcast_truth[,5] <- as.Date(Nowcast_truth[,5]) + 4
 
