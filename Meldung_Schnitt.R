@@ -1,4 +1,6 @@
 library(ggplot2)
+library(tidyr)
+library(dplyr)
 Covid=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Covid_reg.csv")
 Influenza=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Influenza_reg.csv")
 RSV=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\RSV_reg.csv")
@@ -84,15 +86,25 @@ df <- data.frame(
 df_long <- df %>%
   pivot_longer(cols = starts_with("Woche"),names_to = "Woche",values_to = "Anteil"
   )
+df_long <- df_long %>%
+  mutate(
+    Woche = recode(Woche,
+                   "Woche4" = "4 Wochen",
+                   "Woche3" = "3 Wochen",
+                   "Woche2" = "2 Wochen",
+                   "Woche1" = "1 Woche",
+                   "Woche0" = "0 Wochen"),
+   )
 
 # Faktorlevel für Reihenfolge der Wochen (Woche4 oben im Stack)
-df_long$Woche <- factor(df_long$Woche, levels = paste0("Woche", 4:0))
+df_long$Woche <- factor(df_long$Woche, levels = c("4 Wochen","3 Wochen", "2 Wochen", "1 Woche", "0 Wochen"))
 
 # Plotten
 ggplot(df_long, aes(x = Krankheit, y = Anteil, fill = Woche)) + 
+  scale_fill_manual(values = c("0 Wochen" = "#009682", "1 Woche" = "black", "2 Wochen"="#4664aa", "3 Wochen"="#A3107C","4 Wochen"="#FCE500"))+
   geom_bar(stat = "identity", width = 0.5) + 
-  labs(title = "Gestapelter Balken für eine Krankheit nach Wochen",
-       x = NULL, y = "Anteil", fill = "Kalenderwoche") +
+  labs(title = "Gestapelter Balken für eine Krankheit mit Verzugszeiten",
+       x = NULL, y = "Anteil", fill = "Meldeverzüge") +
   theme_minimal()
 total_plotten(Anteil_Covid,"Anteil Covid")
 total_plotten(Anteil_Influenza,"Anteil Influenza")

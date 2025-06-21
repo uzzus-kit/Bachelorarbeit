@@ -118,62 +118,94 @@ Anteil_Rest=Anteil(Rest,summe_rest)
 row.names(Anteil_sari_gekürzt)=NULL
 #Daten vorverarbeitung abgeschlossen
 #Plotten
-plotten=function(Anteil_x, Name){
-  df=data.frame(
-    Woche=Anteil_x$date,
-    Wert_Woche0=Anteil_x$value_0w,
-    Wert_Woche1=Anteil_x$value_1w,
-    Wert_Woche2=Anteil_x$value_2w,
-    Wert_Woche3=Anteil_x$value_3w,
-    Wert_Woche4=Anteil_x$value_4w
+plotten = function(Anteil_x, Name) {
+  df = data.frame(
+    Woche = Anteil_x$date,
+    Wert_Woche0 = Anteil_x$value_0w,
+    Wert_Woche1 = Anteil_x$value_1w,
+    Wert_Woche2 = Anteil_x$value_2w,
+    Wert_Woche3 = Anteil_x$value_3w,
+    Wert_Woche4 = Anteil_x$value_4w
   )
+  
   wochen_labels <- Anteil_x$date[seq(1, length(Anteil_x$date), by = 2)]
-  df_long=df %>%
-    pivot_longer(cols = -Woche,names_to = "Kategorie",values_to = "Wert")
-  df_long$Kategorie = factor(df_long$Kategorie, levels = c("Wert_Woche4", "Wert_Woche3", "Wert_Woche2", "Wert_Woche1", "Wert_Woche0"))    #hierüber lässt sich Reihenfolge steuern
-  df_long$Woche=factor(df_long$Woche, levels=rev(unique(df$Woche)))
-  levels(df_long$Kategorie)
+  
+  df_long = df %>%
+    pivot_longer(cols = -Woche, names_to = "Kategorie", values_to = "Wert") %>%
+    mutate(Kategorie = recode(Kategorie,
+                              "Wert_Woche0" = "0 Wochen",
+                              "Wert_Woche1" = "1 Woche",
+                              "Wert_Woche2" = "2 Wochen",
+                              "Wert_Woche3" = "3 Wochen",
+                              "Wert_Woche4" = "4 Wochen"),
+           Kategorie = factor(Kategorie, levels = c("4 Wochen", "3 Wochen", "2 Wochen", "1 Woche", "0 Wochen")))
+  
+  df_long$Woche <- factor(df_long$Woche, levels = unique(df$Woche))
+  
   ggplot(df_long, aes(x = Woche, y = Wert, fill = Kategorie)) +
     geom_bar(stat = "identity") +
-    scale_x_discrete(breaks = wochen_labels)+
-    labs(title = paste("Meldeverzüge für ",Name," Anteilig nach Kalenderwoche"),
+    scale_fill_manual(values = c(
+      "0 Wochen" = "#009682",
+      "1 Woche" = "black",
+      "2 Wochen" = "#4664aa",
+      "3 Wochen" = "#A3107C",
+      "4 Wochen" = "#FCE500")) +
+    scale_x_discrete(breaks = wochen_labels) +
+    labs(title = paste("Meldeverzüge für", Name, "anteilig nach Kalenderwoche"),
          x = "Kalenderwoche",
          y = "Anteil",
-         fill = "Kategorie") +
+         fill = "Meldeverzüge") +
     theme_minimal() +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1,size = 8))
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
+
 }
+Anteil_Covid$date
 plotten(Anteil_Covid, "Covid")
 plotten(Anteil_Influenza, "Influenza")
 plotten(Anteil_RSV,"RSV")
 plotten(Anteil_Rest,"Rest")
 plotten(Anteil_Gesamtverzüge,"Gesamtverzüge")
 plotten(Anteil_sari_gekürzt,"sari")
-plotten=function(Anteil_x, Name){
-  df=data.frame(
-    Woche=Anteil_x$date,
-    Wert_Woche0=Anteil_x$value_0w,
-    Wert_Woche1=Anteil_x$value_1w,
-    Wert_Woche2=Anteil_x$value_2w,
-    Wert_Woche3=Anteil_x$value_3w,
-    Wert_Woche4=Anteil_x$value_4w
+plotten = function(Anteil_x, Name) {
+  df = data.frame(
+    Woche = Anteil_x$date,
+    Wert_Woche0 = Anteil_x$value_0w,
+    Wert_Woche1 = Anteil_x$value_1w,
+    Wert_Woche2 = Anteil_x$value_2w,
+    Wert_Woche3 = Anteil_x$value_3w,
+    Wert_Woche4 = Anteil_x$value_4w
   )
+  
   wochen_labels <- Anteil_x$date[seq(1, length(Anteil_x$date), by = 5)]
-  df_long=df %>%
-    pivot_longer(cols = -Woche,names_to = "Kategorie",values_to = "Wert")
-  df_long$Kategorie = factor(df_long$Kategorie, levels = c("Wert_Woche4", "Wert_Woche3", "Wert_Woche2", "Wert_Woche1", "Wert_Woche0"))    #hierüber lässt sich Reihenfolge steuern
-  df_long$Woche=factor(df_long$Woche, levels=rev(unique(df$Woche)))
-  levels(df_long$Kategorie)
+  
+  df_long = df %>%
+    pivot_longer(cols = -Woche, names_to = "Kategorie", values_to = "Wert") %>%
+    mutate(Kategorie = recode(Kategorie,
+                              "Wert_Woche0" = "0 Wochen",
+                              "Wert_Woche1" = "1 Woche",
+                              "Wert_Woche2" = "2 Wochen",
+                              "Wert_Woche3" = "3 Wochen",
+                              "Wert_Woche4" = "4 Wochen"),
+           Kategorie = factor(Kategorie, levels = c("4 Wochen", "3 Wochen", "2 Wochen", "1 Woche", "0 Wochen")))
+  
+  df_long$Woche <- factor(df_long$Woche, levels = unique(df$Woche))
+  
   ggplot(df_long, aes(x = Woche, y = Wert, fill = Kategorie)) +
     geom_bar(stat = "identity") +
-    scale_x_discrete(breaks = wochen_labels)+
-    labs(title = paste("Meldeverzüge für ",Name," Anteilig nach Kalenderwoche"),
+    scale_fill_manual(values = c(
+      "0 Wochen" = "#009682",
+      "1 Woche" = "black",
+      "2 Wochen" = "#4664aa",
+      "3 Wochen" = "#A3107C",
+      "4 Wochen" = "#FCE500")) +
+    scale_x_discrete(breaks = wochen_labels) +
+    scale_y_continuous(breaks = seq(0, 1, by = 0.25)) +
+    labs(title = paste("Meldeverzüge für", Name, "anteilig nach Kalenderwoche"),
          x = "Kalenderwoche",
          y = "Anteil",
-         fill = "Kategorie") +
+         fill = "Meldeverzüge") +
     theme_minimal() +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1,size = 8))+
-  scale_y_continuous(breaks = seq(0, 1, by = 0.25))
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
 }
 plotten(Anteil_sari,"sari")                           #Braucht neue Funktion da Skalierung auf x und y Achse angepasst werden muss da deutlich mehr Wochen an Daten gegeben
 
