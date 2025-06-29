@@ -1,6 +1,7 @@
 library(ggplot2)
 library(tidyr)
 library(dplyr)
+library(patchwork)
 Covid=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_covid19.csv")
 Influenza=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_influenza.csv")
 RSV=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\reporting_triangle-icosari-sari_rsv.csv")
@@ -151,21 +152,35 @@ plotten = function(Anteil_x, Name) {
       "3 Wochen" = "#A3107C",
       "4 Wochen" = "#FCE500")) +
     scale_x_discrete(breaks = wochen_labels) +
-    labs(title = paste("Meldeverzüge für", Name, "anteilig nach Kalenderwoche"),
+    labs(title = paste("Meldeverzüge für", Name),
          x = "Kalenderwoche",
          y = "Anteil",
          fill = "Meldeverzüge") +
     theme_minimal() +
+    scale_y_continuous(limits = c(-0.3, 1.3))+
     theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 8))
 
 }
 Anteil_Covid$date
-plotten(Anteil_Covid, "Covid")
-plotten(Anteil_Influenza, "Influenza")
-plotten(Anteil_RSV,"RSV")
-plotten(Anteil_Rest,"Rest")
+p1=plotten(Anteil_Covid, "COVID-19")
+p2=plotten(Anteil_Influenza, "Influenza")
+p3=plotten(Anteil_RSV,"RSV")
+p4=plotten(Anteil_Rest,"Rest")
 plotten(Anteil_Gesamtverzüge,"Gesamtverzüge")
-plotten(Anteil_sari_gekürzt,"sari")
+p5=plotten(Anteil_sari_gekürzt,"SARI")
+(p1 | p2) / (p3 | p4)/(p5) + plot_layout(guides = "collect")
+layout <- c(
+  area(1, 1),  # p1: oben links
+  area(1, 2),  # p2: oben rechts
+  area(2, 1),  # p3: mitte links
+  area(2, 2),  # p4: mitte rechts
+  area(3, 1),  # p5: unten links
+  area(3, 2)   # leer oder anderer Plot möglich
+)
+
+# Zusammenfügen mit dem definierten Layout
+(p1 + p2 + p3 + p4 + p5) + 
+  plot_layout(design = layout, guides = "collect")
 plotten = function(Anteil_x, Name) {
   df = data.frame(
     Woche = Anteil_x$date,

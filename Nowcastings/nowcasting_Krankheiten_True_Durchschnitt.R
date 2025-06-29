@@ -43,7 +43,7 @@ forecast_dates <- seq(from = as.Date("2024-10-10"),
 n_history_dispersion <- 15
 n_history_expectations <- 15
 max_delay <- 4
-max_horizon <- 3
+max_horizon <- 4
 
 # specify if plots are to be generated for each nowcast:
 plot_all <- TRUE
