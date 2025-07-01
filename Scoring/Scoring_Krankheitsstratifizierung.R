@@ -5,7 +5,7 @@ target[["sari_covid"]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Eval
 target[["sari_influenza"]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Evaluation\\target-icosari-sari_influenza.csv")
 target[["sari_rsv"]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Evaluation\\target-icosari-sari_rsv.csv")
 target[["Rest"]]=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Evaluation\\target_Rest.csv")
-nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcasts\\Nowcast_Krankheit_False5.csv")
+nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcasts\\Nowcast_Krankheit_True.csv")
 source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\eigener Code\\WIS.R")
 #source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\eigener Code\\Nowcastings\\nowcasting_Krankheiten_False.R")   #Alternativ kann man auch die Nowcasts laden
 #source("C:\\Users\\felix\\Desktop\\Uni\\BA\\Code\\eigener Code\\truth\\truth_berechnen_Krankheitsstratifiziert.R")

@@ -42,15 +42,15 @@ diseases <- c("sari", "sari_covid", "sari_influenza", "sari_rsv","Rest")
 #forecast_dates <- as.Date("2024-10-10")                   #Da Meldungen immer Donnerstags sollte dieses Datum ebenfalls ein Donnerstag sein
 # set the sizes of training data sets
 n_history_dispersion <- 5
-n_history_expectations <- 5
+n_history_expectations <-5
 max_delay <- 4
 max_horizon <- 4
 if(n_history_dispersion==5){
-  forecast_dates=seq(from = as.Date("2024-11-21"),
+  forecast_dates=seq(from = as.Date(as.Date("2024-10-06")+4+7*6),
                                        to = as.Date("2025-04-10"),
                                        by = 7)
 }else if(n_history_dispersion==10){
-  forecast_dates <- seq(from = as.Date("2024-12-26"),
+  forecast_dates <- seq(from = as.Date(as.Date("2024-10-06")+4+7*11),
                         to = as.Date("2025-04-10"),
                         by = 7)
 }
@@ -101,7 +101,7 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
     # note: observed is the reporting triangle for which to generate a nowcast,
     # observed 2 is the triangle used to estimate the delay pattern (to do this,
     # borrow_delays and borrow_dispersion need to be set to TRUE)
-    if(disease=="sari_rsv"&forecast_date<=as.Date("2025-01-16")){               #RSV erst berechenbar ab dem 2025-01-16
+    if(disease=="sari_rsv"&forecast_date<=as.Date("2025-01-09")){               #RSV erst berechenbar ab dem 2025-01-16
       next
     }
     nc <- compute_nowcast(observed = triangles[[disease]], # this is the reporting triangle for which to compute nowcasts

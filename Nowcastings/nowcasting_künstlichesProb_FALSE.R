@@ -41,10 +41,15 @@ n_history_dispersion <- 10
 n_history_expectations <- 10
 max_delay <- 4
 max_horizon <- 4
-forecast_dates <- seq(from = as.Date("2023-10-26")+(n_history_dispersion+2)*7,                     #Muss geändert werden
+if(n_history_dispersion==5){
+forecast_dates <- seq(from = as.Date(as.Date("2023-10-22")+4+(n_history_dispersion+1)*7),                     #Muss geändert werden
                       to = as.Date("2025-04-10"),
                       by = 7)
-
+}else if(n_history_dispersion==10){
+  forecast_dates <- seq(from = as.Date(as.Date("2023-10-22")+4+(n_history_dispersion+2)*7),                     #Muss geändert werden
+                        to = as.Date("2025-04-10"),
+                        by = 7)
+}
 # specify if plots are to be generated for each nowcast:
 plot_all <- TRUE
 class(forecast_dates)
@@ -58,7 +63,7 @@ triangles <- targets <- list()
   #targets[[diseases[1]]] <- read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\target_künstliches_Prob.csv",
   #                                colClasses = c("date" = "Date"), check.names = FALSE)
 #Daten=Daten_künstlich(as.Date("2023-10-29"))
-Datum=as.Date("2023-10-29")
+Datum=as.Date("2023-10-22")
 triangle_künstlich(Datum)
 target_künstlich(Datum)
 triangles[[diseases[1]]]=read.csv(paste0("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\triangle_künstliches_Prob_",Datum,".csv"),colClasses = c("date" = "Date"), check.names = FALSE)

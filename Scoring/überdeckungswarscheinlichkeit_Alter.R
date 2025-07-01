@@ -1,4 +1,4 @@
-Nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcasts\\Nowcast_künstlichesProb_TRUE.csv")
+Nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcasts\\Nowcast_künstlichesProb_False_10.csv")
 target=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Evaluation\\target-icosari-sari.csv")
 
 Nowcast_zerlegen_Alter=function(Nowcast){
@@ -27,12 +27,18 @@ unique(nowcast[[1]]$target_end_date)
   treffer=0
   gesamt=0
   alpha=1-Konfidenzniveau
+  #target=target_age[[2]]
+  #nowcast=nowcast[[2]]
   print(paste0(unique(nowcast$age_group),"  ", Konfidenzniveau))
   for (date in unique(nowcast$target_end_date)){
     nowcast_date=unique(nowcast[which(nowcast$target_end_date==date),3])
     for(j in nowcast_date){
-      if(target[which(target$date==date),6]<=nowcast[which(nowcast$forecast_date==j&nowcast$target_end_date==date&nowcast$quantile==as.character(1-alpha/2)),8]&
-         target[which(target$date==date),6]>=nowcast[which(nowcast$forecast_date==j&nowcast$target_end_date==date&nowcast$quantile==as.character(alpha/2)),8]){
+      if((length(which(target$date==date))==0)){
+        #print(paste0(date,"gibt es nicht in ",target$date))
+        break
+      }
+        if(target[which(target$date==date),6]<=nowcast[which(nowcast$forecast_date==j&nowcast$target_end_date==date&as.character(nowcast$quantile)==as.character(1-alpha/2)),8]&
+           target[which(target$date==date),6]>=nowcast[which(nowcast$forecast_date==j&nowcast$target_end_date==date&nowcast$quantile==as.character(alpha/2)),8]){
        
         treffer=treffer+1
       }
@@ -52,4 +58,3 @@ for (i in 1:7) {
   print(Überdeckungswarscheinlichkeit_Krankheit(nowcast[[i]],target_age[[i]],0.5))
   print(Überdeckungswarscheinlichkeit_Krankheit(nowcast[[i]],target_age[[i]],0.95))
 }
-#Vermutung: ich hab mit datum von 00+ angefangen aber altersstratifizierung gab es ja erst später
