@@ -1,4 +1,4 @@
-Nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcasts\\Nowcast_künstlichesProb_TRUE.csv")
+Nowcast=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcasts\\Nowcast_künstlichesProb_spät10.csv")
 target=read.csv("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Evaluation\\target-icosari-sari.csv")
 
 Nowcast_zerlegen_Alter=function(Nowcast){
@@ -24,7 +24,7 @@ Nowcast_zerlegen_Krankheit=function(Nowcast){
 nowcast=Nowcast_zerlegen_Alter(Nowcast)
 unique(nowcast[[1]]$target_end_date)
 Überdeckungswarscheinlichkeit_Krankheit=function(nowcast,target, Konfidenzniveau){
-  nowcast=nowcast[match(as.Date(as.Date("2023-10-22")+4+12*7),nowcast$forecast_date):length(nowcast[,1]),]
+  nowcast=nowcast[match(as.Date("2024-12-26"),nowcast$forecast_date):length(nowcast[,1]),]
   treffer=0
   gesamt=0
   alpha=1-Konfidenzniveau

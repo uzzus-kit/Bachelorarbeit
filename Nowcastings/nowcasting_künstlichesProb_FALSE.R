@@ -142,6 +142,26 @@ for(i in seq_along(forecast_dates)){                    #Durchläuft alle Progno
 write.csv(do.call(rbind,SARI_liste),paste0("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcasts\\Nowcast_künstlichesProb_False_",n_history_dispersion,".csv"),row.names = FALSE)
 Nowcast=read.csv(paste0("C:\\Users\\felix\\Desktop\\Uni\\BA\\Daten\\Nowcasts\\Nowcast_künstlichesProb_False_",n_history_dispersion,".csv"))
 Nowcast_einzel=list()
+for (age in ages){
+  Nowcast_einzel[[age]]=Nowcast[which(Nowcast$age_group==age),]
+  i=i+1
+}
+Nowcast_aufbrechen=function(Nowcast_alter){
+  Nowcast_aufgebrochen=list()
+  untere_Grenze=1
+  obere_Grenze=4*8
+  for(i in 1:floor(nrow(Nowcast_alter)/(4*8))){
+    Nowcast_aufgebrochen[[i]]=Nowcast_alter[untere_Grenze:obere_Grenze,]
+    untere_Grenze=untere_Grenze+(4*8)
+    obere_Grenze=obere_Grenze+(4*8)
+  }
+  return(Nowcast_aufgebrochen)
+}
+Nowcast_darstellung=list()
+for (age in ages){
+  Nowcast_darstellung[[age]]=subset(Nowcast_einzel[[age]],Nowcast_einzel[[age]]$forecast_date %in% sort(unique(Nowcast_einzel[[age]]$forecast_date))[seq(1, length(unique(Nowcast_einzel[[age]]$forecast_date)), by = 3)],)
+  Nowcast_darstellung[[age]]=Nowcast_aufbrechen(Nowcast_darstellung[[age]])
+}
 plotten=function(Nowcast,age){
   
   # Basisdaten vorbereiten

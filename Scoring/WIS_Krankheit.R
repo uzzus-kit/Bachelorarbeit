@@ -68,6 +68,12 @@ WIS_auswerten=function(WIS){
   average=mean(WIS_gesamt)
   return(average)
 }
-x=WIS_berechnen(nowcast[[1]],target[["sari"]])
-print(WIS_auswerten(x))
-length(unique(nowcast[[1]]$forecast_date))
+WIS=list()
+for (i in 1:length(diseas)){
+  WIS[[i]]=WIS_berechnen(nowcast[[i]],target[[i]])
+  WIS[[i]]=WIS_auswerten(WIS[[i]])
+}
+for(i in 1:length(WIS)){
+  print(paste0(diseas[[i]],": ",WIS[[i]]))
+}
+
