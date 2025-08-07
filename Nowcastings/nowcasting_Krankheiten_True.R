@@ -166,14 +166,14 @@ Nowcast_aufbrechen=function(Nowcast_Krankheit){
 Nowcast_darstellung=list()
 
 for(disea in diseases){
-  Nowcast_darstellung[[disea]]=subset(Nowcast_einzel[[disea]],Nowcast_einzel[[disea]]$forecast_date %in% sort(unique(Nowcast_einzel[[disea]]$forecast_date))[seq(1, length(unique(Nowcast_einzel[[disea]]$forecast_date)), by = 3)],)
-  Nowcast_darstellung[[disea]]=Nowcast_aufbrechen(Nowcast_darstellung[[disea]])
+  #Nowcast_darstellung[[disea]]=subset(Nowcast_einzel[[disea]],Nowcast_einzel[[disea]]$forecast_date %in% sort(unique(Nowcast_einzel[[disea]]$forecast_date))[seq(1, length(unique(Nowcast_einzel[[disea]]$forecast_date)), by = 3)],)
+  Nowcast_darstellung[[disea]]=Nowcast_aufbrechen(Nowcast_einzel[[disea]])
 }
 for (disea in diseases) {
   targets[[disea]]=targets[[disea]][which(targets[[disea]]$age_group=="00+"),]
   #triangles[[disea]]$date=as.Date(triangles[[disea]]$date+4)
 }
-plotten=function(Nowcast,Zahl,disease){
+plotten=function(Nowcast,Zahl,name){
   
   # Basisdaten vorbereiten
   #Nowcast=Nowcast_sari
@@ -200,16 +200,13 @@ plotten=function(Nowcast,Zahl,disease){
   )
   # Aktuelle Daten hinzufügen
   #lines(target_current$date, target_current$value, col = "red", lty = "solid")
-  title(disease)
+  title(name)
   
   # 2. Jetzt zusätzliche Nowcasts mit Linien hinzufügen (Medianlinien z. B.)
-  for (i in 1:(length(Nowcast))) {
+  forecast_indices <- seq(1, length(Nowcast), by = 3)
+  for (i in forecast_indices) {
     
     forecast_i <- Nowcast[[i]]
-    median_forecast <- subset(forecast_i, quantile == 0.5)
-    
-    lines(as.Date(median_forecast$target_end_date), median_forecast$value,
-          col = "#A3107C", lty = "solid")
     
     #draw_truths <- function(truth, location){
     #  lines(truth$date, truth$value, pch = 20, lwd = 2)
@@ -230,15 +227,19 @@ plotten=function(Nowcast,Zahl,disease){
     polygon(
       c(as.Date(lower1$target_end_date), rev(as.Date(upper1$target_end_date))),
       c(lower1$value, rev(upper1$value)),
-      col = adjustcolor("#009682", alpha.f = 0.2),
+      col = adjustcolor("orange", alpha.f = 0.2),
       border = NA
     )
     polygon(
       c(as.Date(lower2$target_end_date), rev(as.Date(upper2$target_end_date))),
       c(lower2$value, rev(upper2$value)),
-      col = adjustcolor("#009682", alpha.f = 0.5),
+      col = adjustcolor("orange", alpha.f = 0.5),
       border = NA
     )
+    median_forecast <- subset(forecast_i, quantile == 0.5)
+    
+    lines(as.Date(median_forecast$target_end_date), median_forecast$value,
+          col = "blue", lty = "solid",lwd=3)
     # 3. Damalige Wahrheit extrahieren (BLACK LINE)
     observed_back_in_time <- data_as_of(dat_truth = triangles[[Zahl]],  # oder triangles[[disease]]
                                         date = as.Date(unique(forecast_i$forecast_date)),
@@ -252,9 +253,17 @@ plotten=function(Nowcast,Zahl,disease){
     )
     
     # 4. Schwarze Linie plotten
-    lines(plot_data_back_i$date, plot_data_back_i$value, col = "yellow", lty = "solid")
+    # Nur die target_end_dates dieses Forecasts verwenden
+    earliest_target <- min(as.Date(median_forecast$target_end_date)) -7
+    latest_target <- max(as.Date(median_forecast$target_end_date))
+    date_range <- seq(earliest_target, latest_target, by = "day")  # oder "week"
+    
+    filtered_truth <- subset(plot_data_back_i, date %in% date_range)
+    
+    lines(filtered_truth$date, filtered_truth$value, col = "gray", lty = "solid", lwd = 2)
   }
   #browser()
+  
 }
 i=1
 for (disea in diseases){

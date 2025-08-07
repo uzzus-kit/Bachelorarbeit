@@ -41,8 +41,8 @@ diseases <- c("sari", "sari_covid", "sari_influenza", "sari_rsv","Rest")
 # or select an individual forecast_date:
 #forecast_dates <- as.Date("2024-10-10")                   #Da Meldungen immer Donnerstags sollte dieses Datum ebenfalls ein Donnerstag sein
 # set the sizes of training data sets
-n_history_dispersion <- 10
-n_history_expectations <-10
+n_history_dispersion <- 5
+n_history_expectations <-5
 max_delay <- 4
 max_horizon <- 4
 if(n_history_dispersion==5){
@@ -179,15 +179,15 @@ return(Nowcast_aufgebrochen)
 Nowcast_darstellung=list()
 
 for(disea in diseases){
-  Nowcast_darstellung[[disea]]=subset(Nowcast_einzel[[disea]],Nowcast_einzel[[disea]]$forecast_date %in% sort(unique(Nowcast_einzel[[disea]]$forecast_date))[seq(3, length(unique(Nowcast_einzel[[disea]]$forecast_date)), by = 3)],)
-  Nowcast_darstellung[[disea]]=Nowcast_aufbrechen(Nowcast_darstellung[[disea]])
-  }
+  #Nowcast_darstellung[[disea]]=subset(Nowcast_einzel[[disea]],Nowcast_einzel[[disea]]$forecast_date %in% sort(unique(Nowcast_einzel[[disea]]$forecast_date))[seq(1, length(unique(Nowcast_einzel[[disea]]$forecast_date)), by = 3)],)
+  Nowcast_darstellung[[disea]]=Nowcast_aufbrechen(Nowcast_einzel[[disea]])
+}
 for (disea in diseases) {
   targets[[disea]]=targets[[disea]][which(targets[[disea]]$age_group=="00+"),]
   #triangles[[disea]]$date=as.Date(triangles[[disea]]$date+4)
 }
-plotten=function(Nowcast,Zahl,disease){
-
+plotten=function(Nowcast,Zahl,name){
+  
   # Basisdaten vorbereiten
   #Nowcast=Nowcast_sari
   #Zahl=1
@@ -199,75 +199,84 @@ plotten=function(Nowcast,Zahl,disease){
     date = as.Date(observed_back_in_time$date),
     value = rowSums(observed_back_in_time[, grepl("value_", colnames(observed_back_in_time))], na.rm = TRUE)
   )
-
-target_current <- subset(targets[[Zahl]], age_group == "00+" & location == "DE")
-# 1. Plot mit einem Forecast erstellen (z. B. dem aktuellsten)
-plot_forecast(forecasts = Nowcast[[length(Nowcast)]],
-            location = "DE", age_group = "00+",
-            truth = plot_data_back_in_time,
-            levels_coverage = c(0.5, 0.95),
-            start = (as.Date(forecast_dates[1])-35),
-            end = as.Date(forecast_dates[length(forecast_dates)]),
-            forecast_date = forecast_date,
-            ylim = c(0, 1.2 * max(tail(plot_data_back_in_time$value, 20)))
-)
-# Aktuelle Daten hinzufügen
-#lines(target_current$date, target_current$value, col = "red", lty = "solid")
-title(disease)
-
-# 2. Jetzt zusätzliche Nowcasts mit Linien hinzufügen (Medianlinien z. B.)
-for (i in 1:(length(Nowcast))) {
   
-  forecast_i <- Nowcast[[i]]
-  median_forecast <- subset(forecast_i, quantile == 0.5)
-  
-  lines(as.Date(median_forecast$target_end_date), median_forecast$value,
-        col = "#A3107C", lty = "solid")
-  
-  #draw_truths <- function(truth, location){
-  #  lines(truth$date, truth$value, pch = 20, lwd = 2)
-  #}
-  
-  
-  # 95% Intervall extrahieren
-  lower1 <- subset(forecast_i, quantile == 0.025)
-  upper1 <- subset(forecast_i, quantile == 0.975)
-  
-  lower2=subset(forecast_i, quantile == 0.25)
-  upper2=subset(forecast_i, quantile == 0.75)
-  
-  # Sicherstellen, dass Daten in gleicher Reihenfolge vorliegen
-  stopifnot(all(as.Date(lower1$target_end_date) == as.Date(upper1$target_end_date)))
-  stopifnot(all(as.Date(lower2$target_end_date) == as.Date(upper2$target_end_date)))
-  # Polygon (Konfidenzband) zeichnen
-  polygon(
-    c(as.Date(lower1$target_end_date), rev(as.Date(upper1$target_end_date))),
-    c(lower1$value, rev(upper1$value)),
-    col = adjustcolor("#009682", alpha.f = 0.2),
-    border = NA
+  target_current <- subset(targets[[Zahl]], age_group == "00+" & location == "DE")
+  # 1. Plot mit einem Forecast erstellen (z. B. dem aktuellsten)
+  plot_forecast(forecasts = Nowcast[[length(Nowcast)]],
+                location = "DE", age_group = "00+",
+                truth = plot_data_back_in_time,
+                levels_coverage = c(0.5, 0.95),
+                start = (as.Date(forecast_dates[1])-35),
+                end = as.Date(forecast_dates[length(forecast_dates)]),
+                forecast_date = forecast_date,
+                ylim = c(0, 1.2 * max(tail(plot_data_back_in_time$value, 20)))
   )
-  polygon(
-    c(as.Date(lower2$target_end_date), rev(as.Date(upper2$target_end_date))),
-    c(lower2$value, rev(upper2$value)),
-    col = adjustcolor("#009682", alpha.f = 0.5),
-    border = NA
-  )
-  # 3. Damalige Wahrheit extrahieren (BLACK LINE)
-  observed_back_in_time <- data_as_of(dat_truth = triangles[[Zahl]],  # oder triangles[[disease]]
-                                      date = as.Date(unique(forecast_i$forecast_date)),
-                                      location = "DE", age_group = "00+",
-                                      max_lag = max_delay)
+  # Aktuelle Daten hinzufügen
+  #lines(target_current$date, target_current$value, col = "red", lty = "solid")
+  title(name)
   
-  plot_data_back_i <- data.frame(
-    date = as.Date(observed_back_in_time$date),
-    value = rowSums(observed_back_in_time[, grepl("value_", colnames(observed_back_in_time))],
-                    na.rm = TRUE)
-  )
-  
-  # 4. Schwarze Linie plotten
-  lines(plot_data_back_i$date, plot_data_back_i$value, col = "red", lty = "solid")
-}
+  # 2. Jetzt zusätzliche Nowcasts mit Linien hinzufügen (Medianlinien z. B.)
+  forecast_indices <- seq(1, length(Nowcast), by = 3)
+  for (i in forecast_indices) {
+    
+    forecast_i <- Nowcast[[i]]
+    
+    #draw_truths <- function(truth, location){
+    #  lines(truth$date, truth$value, pch = 20, lwd = 2)
+    #}
+    
+    
+    # 95% Intervall extrahieren
+    lower1 <- subset(forecast_i, quantile == 0.025)
+    upper1 <- subset(forecast_i, quantile == 0.975)
+    
+    lower2=subset(forecast_i, quantile == 0.25)
+    upper2=subset(forecast_i, quantile == 0.75)
+    
+    # Sicherstellen, dass Daten in gleicher Reihenfolge vorliegen
+    stopifnot(all(as.Date(lower1$target_end_date) == as.Date(upper1$target_end_date)))
+    stopifnot(all(as.Date(lower2$target_end_date) == as.Date(upper2$target_end_date)))
+    # Polygon (Konfidenzband) zeichnen
+    polygon(
+      c(as.Date(lower1$target_end_date), rev(as.Date(upper1$target_end_date))),
+      c(lower1$value, rev(upper1$value)),
+      col = adjustcolor("orange", alpha.f = 0.2),
+      border = NA
+    )
+    polygon(
+      c(as.Date(lower2$target_end_date), rev(as.Date(upper2$target_end_date))),
+      c(lower2$value, rev(upper2$value)),
+      col = adjustcolor("orange", alpha.f = 0.5),
+      border = NA
+    )
+    median_forecast <- subset(forecast_i, quantile == 0.5)
+    
+    lines(as.Date(median_forecast$target_end_date), median_forecast$value,
+          col = "blue", lty = "solid",lwd=3)
+    # 3. Damalige Wahrheit extrahieren (BLACK LINE)
+    observed_back_in_time <- data_as_of(dat_truth = triangles[[Zahl]],  # oder triangles[[disease]]
+                                        date = as.Date(unique(forecast_i$forecast_date)),
+                                        location = "DE", age_group = "00+",
+                                        max_lag = max_delay)
+    
+    plot_data_back_i <- data.frame(
+      date = as.Date(observed_back_in_time$date),
+      value = rowSums(observed_back_in_time[, grepl("value_", colnames(observed_back_in_time))],
+                      na.rm = TRUE)
+    )
+    
+    # 4. Schwarze Linie plotten
+    # Nur die target_end_dates dieses Forecasts verwenden
+    earliest_target <- min(as.Date(median_forecast$target_end_date)) -7
+    latest_target <- max(as.Date(median_forecast$target_end_date))
+    date_range <- seq(earliest_target, latest_target, by = "day")  # oder "week"
+    
+    filtered_truth <- subset(plot_data_back_i, date %in% date_range)
+    
+    lines(filtered_truth$date, filtered_truth$value, col = "gray", lty = "solid", lwd = 2)
+  }
   #browser()
+  
 }
 i=1
 for (disea in diseases){

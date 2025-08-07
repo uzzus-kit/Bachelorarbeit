@@ -37,8 +37,8 @@ diseases <- c("sari")
 # or select an individual forecast_date:
 #forecast_dates <- as.Date("2024-10-10")                   #Da Meldungen immer Donnerstags sollte dieses Datum ebenfalls ein Donnerstag sein
 # set the sizes of training data sets
-n_history_dispersion <- 10
-n_history_expectations <- 10
+n_history_dispersion <- 5
+n_history_expectations <- 5
 max_delay <- 4
 max_horizon <- 4
 if(n_history_dispersion==5){
@@ -159,10 +159,10 @@ Nowcast_aufbrechen=function(Nowcast_alter){
 }
 Nowcast_darstellung=list()
 for (age in ages){
-  Nowcast_darstellung[[age]]=subset(Nowcast_einzel[[age]],Nowcast_einzel[[age]]$forecast_date %in% sort(unique(Nowcast_einzel[[age]]$forecast_date))[seq(1, length(unique(Nowcast_einzel[[age]]$forecast_date)), by = 3)],)
-  Nowcast_darstellung[[age]]=Nowcast_aufbrechen(Nowcast_darstellung[[age]])
+  #Nowcast_darstellung[[age]]=subset(Nowcast_einzel[[age]],Nowcast_einzel[[age]]$forecast_date %in% sort(unique(Nowcast_einzel[[age]]$forecast_date))[seq(1, length(unique(Nowcast_einzel[[age]]$forecast_date)), by = 3)],)
+  Nowcast_darstellung[[age]]=Nowcast_aufbrechen(Nowcast_einzel[[age]])
 }
-plotten=function(Nowcast,age){
+plotten=function(Nowcast,age,name){
   
   # Basisdaten vorbereiten
   #Nowcast=Nowcast_sari
@@ -189,16 +189,12 @@ plotten=function(Nowcast,age){
   )
   # Aktuelle Daten hinzufügen
   #lines(target_current$date, target_current$value, col = "red", lty = "solid")
-  title(age)
-  
+  title(name)
   # 2. Jetzt zusätzliche Nowcasts mit Linien hinzufügen (Medianlinien z. B.)
-  for (i in 1:(length(Nowcast))) {
+  forecast_indices <- seq(1, length(Nowcast), by = 3)
+  for (i in forecast_indices) {
     
     forecast_i <- Nowcast[[i]]
-    median_forecast <- subset(forecast_i, quantile == 0.5)
-    
-    lines(as.Date(median_forecast$target_end_date), median_forecast$value,
-          col = "#A3107C", lty = "solid")
     
     #draw_truths <- function(truth, location){
     #  lines(truth$date, truth$value, pch = 20, lwd = 2)
@@ -219,15 +215,19 @@ plotten=function(Nowcast,age){
     polygon(
       c(as.Date(lower1$target_end_date), rev(as.Date(upper1$target_end_date))),
       c(lower1$value, rev(upper1$value)),
-      col = adjustcolor("#009682", alpha.f = 0.2),
+      col = adjustcolor("orange", alpha.f = 0.2),
       border = NA
     )
     polygon(
       c(as.Date(lower2$target_end_date), rev(as.Date(upper2$target_end_date))),
       c(lower2$value, rev(upper2$value)),
-      col = adjustcolor("#009682", alpha.f = 0.5),
+      col = adjustcolor("orange", alpha.f = 0.5),
       border = NA
     )
+    median_forecast <- subset(forecast_i, quantile == 0.5)
+    
+    lines(as.Date(median_forecast$target_end_date), median_forecast$value,
+          col = "blue", lty = "solid",lwd=3)
     # 3. Damalige Wahrheit extrahieren (BLACK LINE)
     observed_back_in_time <- data_as_of(dat_truth = triangles[[Zahl]],  # oder triangles[[disease]]
                                         date = as.Date(unique(forecast_i$forecast_date)),
@@ -241,14 +241,21 @@ plotten=function(Nowcast,age){
     )
     
     # 4. Schwarze Linie plotten
-    lines(plot_data_back_i$date, plot_data_back_i$value, col = "yellow", lty = "solid")
+    # Nur die target_end_dates dieses Forecasts verwenden
+    earliest_target <- min(as.Date(median_forecast$target_end_date)) - 7
+    latest_target <- max(as.Date(median_forecast$target_end_date))
+    date_range <- seq(earliest_target, latest_target, by = "day")  # oder "week"
+    
+    filtered_truth <- subset(plot_data_back_i, date %in% date_range)
+    
+    lines(filtered_truth$date, filtered_truth$value, col = "gray", lty = "solid", lwd = 2)
   }
   #browser()
   
 }
 i=1
 for (age in ages){
-  plotten(Nowcast_darstellung[[age]],age)
+  plotten(Nowcast_darstellung[[age]],age,age)
   i=i+1
 }
 
