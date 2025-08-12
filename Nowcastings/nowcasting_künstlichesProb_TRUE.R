@@ -238,7 +238,7 @@ Nowcast_darstellung=list()
       
       filtered_truth <- subset(plot_data_back_i, date %in% date_range)
       
-      lines(filtered_truth$date, filtered_truth$value, col = "gray", lty = "solid", lwd = 2)
+      lines(filtered_truth$date, filtered_truth$value, col = "red", lty = "solid", lwd = 2)
     }
     #browser()
     

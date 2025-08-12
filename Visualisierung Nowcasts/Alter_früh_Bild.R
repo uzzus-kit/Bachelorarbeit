@@ -4,12 +4,12 @@ library(png)
 library(grid)
 
 # PNG einlesen
-img1 <- readPNG("C:\\Users\\felix\\Desktop\\Uni\\BA\\Nowcasts\\00-04_früh_True_1.png")
-img2 <- readPNG("C:\\Users\\felix\\Desktop\\Uni\\BA\\Nowcasts\\00-04_früh_True_2.png")
-img3=readPNG("C:\\Users\\felix\\Desktop\\Uni\\BA\\Nowcasts\\00-04_früh_True_3.png")
-img4=readPNG("C:\\Users\\felix\\Desktop\\Uni\\BA\\Nowcasts\\00-04_früh_10_1.png")
-img5=readPNG("C:\\Users\\felix\\Desktop\\Uni\\BA\\Nowcasts\\00-04_früh_10_2.png")
-img6=readPNG("C:\\Users\\felix\\Desktop\\Uni\\BA\\Nowcasts\\00-04_früh_10_3.png")
+img1 <- readPNG("C:\\Users\\felix\\Desktop\\Uni\\BA\\Bilder in der BA\\einzelNowcast\\00-04_früh_geliehen_1.png")
+img2 <- readPNG("C:\\Users\\felix\\Desktop\\Uni\\BA\\Bilder in der BA\\einzelNowcast\\00-04_früh_geliehen_2.png")
+img3=readPNG("C:\\Users\\felix\\Desktop\\Uni\\BA\\Bilder in der BA\\einzelNowcast\\00-04_früh_geliehen_3.png")
+img4=readPNG("C:\\Users\\felix\\Desktop\\Uni\\BA\\Bilder in der BA\\einzelNowcast\\00-04_früh_10Wochen_1.png")
+img5=readPNG("C:\\Users\\felix\\Desktop\\Uni\\BA\\Bilder in der BA\\einzelNowcast\\00-04_früh_10Wochen_2.png")
+img6=readPNG("C:\\Users\\felix\\Desktop\\Uni\\BA\\Bilder in der BA\\einzelNowcast\\00-04_früh_10Wochen_3.png")
 # In Raster-Grob umwandeln
 g1 <- rasterGrob(img1, interpolate = TRUE)
 g2 <- rasterGrob(img2, interpolate = TRUE)

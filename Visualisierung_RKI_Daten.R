@@ -11,10 +11,26 @@ colnames(Inzidenzen_wochen)=c("Gesamt","COVID_19","Influenza","RSV")
 rownames(Inzidenzen_wochen)=Kalenderwochen
 Inzidenzen_wochen
 for(i in 1:Anzahl_Wochen){
-  Inzidenzen_wochen[i,1]=sum(Sari_Daten$Hospitalisierungsinzidenz[which(Sari_Daten$Kalenderwoche==Kalenderwochen[i]&Sari_Daten$SARI=="Gesamt")])
-  Inzidenzen_wochen[i,2]=sum(Sari_Daten$Hospitalisierungsinzidenz[which(Sari_Daten$Kalenderwoche==Kalenderwochen[i]&Sari_Daten$SARI=="COVID-19")])
-  Inzidenzen_wochen[i,3]=sum(Sari_Daten$Hospitalisierungsinzidenz[which(Sari_Daten$Kalenderwoche==Kalenderwochen[i]&Sari_Daten$SARI=="Influenza")])
-  Inzidenzen_wochen[i,4]=sum(Sari_Daten$Hospitalisierungsinzidenz[which(Sari_Daten$Kalenderwoche==Kalenderwochen[i]&Sari_Daten$SARI=="RSV")])
+  if(length(which(Sari_Daten$Kalenderwoche==Kalenderwochen[i]&Sari_Daten$SARI=="Gesamt"&Sari_Daten$Altersgruppe=="00+"))==0){
+    Inzidenzen_wochen[i,1]=0
+  }else{
+  Inzidenzen_wochen[i,1]=Sari_Daten$Hospitalisierungsinzidenz[which(Sari_Daten$Kalenderwoche==Kalenderwochen[i]&Sari_Daten$SARI=="Gesamt"&Sari_Daten$Altersgruppe=="00+")]
+  }
+  if(length(which(Sari_Daten$Kalenderwoche==Kalenderwochen[i]&Sari_Daten$SARI=="COVID-19"&Sari_Daten$Altersgruppe=="00+"))==0){
+  Inzidenzen_wochen[i,2]=0
+  }else{
+    Inzidenzen_wochen[i,2]=Sari_Daten$Hospitalisierungsinzidenz[which(Sari_Daten$Kalenderwoche==Kalenderwochen[i]&Sari_Daten$SARI=="COVID-19"&Sari_Daten$Altersgruppe=="00+")]
+  }
+  if(length(which(Sari_Daten$Kalenderwoche==Kalenderwochen[i]&Sari_Daten$SARI=="Influenza"&Sari_Daten$Altersgruppe=="00+"))==0){
+    Inzidenzen_wochen[i,3]=0
+  }else{
+  Inzidenzen_wochen[i,3]=Sari_Daten$Hospitalisierungsinzidenz[which(Sari_Daten$Kalenderwoche==Kalenderwochen[i]&Sari_Daten$SARI=="Influenza"&Sari_Daten$Altersgruppe=="00+")]
+  }
+  if(length(which(Sari_Daten$Kalenderwoche==Kalenderwochen[i]&Sari_Daten$SARI=="RSV"&Sari_Daten$Altersgruppe=="00+"))==0){
+    Inzidenzen_wochen[i,4]=0
+  }else{
+  Inzidenzen_wochen[i,4]=Sari_Daten$Hospitalisierungsinzidenz[which(Sari_Daten$Kalenderwoche==Kalenderwochen[i]&Sari_Daten$SARI=="RSV"&Sari_Daten$Altersgruppe=="00+")]
+  }
 }
 
 #Für das Säulendiagramm brauch ich aber den Rest der nicht Covid, Influenza oder RSV ist
